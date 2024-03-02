@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"projectIntern/internal/model"
 	"projectIntern/internal/usecase"
+	"projectIntern/pkg/response"
 )
 
 type AuthHandler struct {
@@ -19,34 +20,31 @@ func (a AuthHandler) Register(c *gin.Context) {
 	var req model.UserRegister
 
 	if err := c.ShouldBind(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		response.Error(c, http.StatusBadRequest, "Failed to bind request", err)
+		return
 	}
 
 	user, err := a.userUC.Register(c, &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		response.Error(c, http.StatusInternalServerError, "Failed to create user", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": user, "message": "Success Register user"})
+	response.Success(c, http.StatusOK, "Success Register user", user)
 }
 
 func (a AuthHandler) Login(c *gin.Context) {
 	var req model.UserLogin
 
 	if err := c.ShouldBind(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		response.Error(c, http.StatusBadRequest, "Failed to bind request", err)
 	}
 
 	token, err := a.userUC.Login(c, &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		response.Error(c, http.StatusInternalServerError, "Failed to log in", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Token": token, "Message": "Success Login"})
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
 }
