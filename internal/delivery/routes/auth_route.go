@@ -2,12 +2,12 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"projectIntern/internal/delivery/handler"
+	"projectIntern/internal/delivery/handler/rest"
 )
 
 type AuthRoute struct {
 	Router      *gin.Engine
-	AuthHandler *handler.AuthHandler
+	AuthHandler *rest.AuthHandler
 }
 
 func (ar AuthRoute) Register() {

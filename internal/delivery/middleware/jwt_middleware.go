@@ -3,10 +3,10 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"projectIntern/internal/util/token"
+	"projectIntern/pkg/jwt"
 )
 
-func JwtAuthMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
+func JwtAuthMiddleware(tokenMaker jwt.JWTMakerItf) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {

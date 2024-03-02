@@ -7,7 +7,7 @@ import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/model"
 	"projectIntern/internal/repository"
-	"projectIntern/internal/util/token"
+	"projectIntern/pkg/jwt"
 )
 
 type AuthUseCaseItf interface {
@@ -17,10 +17,10 @@ type AuthUseCaseItf interface {
 
 type AuthUseCase struct {
 	userRepo repository.UserRepoItf
-	token    token.Maker
+	token    jwt.JWTMakerItf
 }
 
-func NewAuthUseCase(userRepo repository.UserRepoItf, token token.Maker) AuthUseCaseItf {
+func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf) AuthUseCaseItf {
 	return AuthUseCase{userRepo: userRepo, token: token}
 }
 

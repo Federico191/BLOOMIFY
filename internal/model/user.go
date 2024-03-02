@@ -3,16 +3,16 @@ package model
 import "time"
 
 type UserRegister struct {
-	Username string `json:"username" validate:"required,min=6,max=20"`
-	Email    string `json:"email" validate:"required,email"`
-	FullName string `json:"full_name" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Username string `json:"username" binding:"required,min=6,max=20"`
+	Email    string `json:"email" binding:"required,email"`
+	FullName string `json:"full_name" binding:"required"`
+	Password string `json:"password" binding:"required"`
 	Avatar   string `json:"avatar"`
 }
 
 type UserLogin struct {
-	Username string `json:"username" validate:"required,min=6,max=20"`
-	Password string `json:"password" validate:"required"`
+	Username string `json:"username" binding:"required,min=6,max=20"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UserResponse struct {
