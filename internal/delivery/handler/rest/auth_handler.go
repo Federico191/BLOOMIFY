@@ -1,20 +1,18 @@
-package handler
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"projectIntern/internal/model"
 	"projectIntern/internal/usecase"
 )
 
 type AuthHandler struct {
-	userUC    usecase.AuthUseCaseItf
-	validator *validator.Validate
+	userUC usecase.AuthUseCaseItf
 }
 
-func NewAuthHandler(userUC usecase.AuthUseCaseItf, validator *validator.Validate) *AuthHandler {
-	return &AuthHandler{userUC: userUC, validator: validator}
+func NewAuthHandler(userUC usecase.AuthUseCaseItf) *AuthHandler {
+	return &AuthHandler{userUC: userUC}
 }
 
 func (a AuthHandler) Register(c *gin.Context) {
@@ -22,12 +20,6 @@ func (a AuthHandler) Register(c *gin.Context) {
 
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
-	}
-
-	err := a.validator.Struct(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-		return
 	}
 
 	user, err := a.userUC.Register(c, &req)
@@ -46,11 +38,6 @@ func (a AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
-	err := a.validator.Struct(&req)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
 	token, err := a.userUC.Login(c, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))

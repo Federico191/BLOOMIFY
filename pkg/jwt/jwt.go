@@ -1,4 +1,4 @@
-package token
+package jwt
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Maker interface {
+type JWTMakerItf interface {
 	CreateToken(username string) (string, error)
 	VerifyToken(tokenString string) (jwt.MapClaims, error)
 }

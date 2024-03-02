@@ -6,6 +6,7 @@ import (
 )
 
 type Env struct {
+	APort       string `mapstructure:"APP_PORT"`
 	DBUsername  string `mapstructure:"DATABASE_USERNAME"`
 	DBPassword  string `mapstructure:"DATABASE_PASSWORD"`
 	DBHost      string `mapstructure:"DATABASE_HOST"`
@@ -21,8 +22,7 @@ func NewEnv(path string) (*Env, error) {
 
 	viper.AutomaticEnv()
 
-	// Muat konfigurasi (baik dari variabel lingkungan atau file)
-	err := viper.ReadInConfig() // Pakai hanya jika konfigurasi dari file diperlukan
+	err := viper.ReadInConfig()
 	if err != nil {
 		log.Print(err)
 		return nil, err
