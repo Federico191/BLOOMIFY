@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"context"
-	"errors"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"projectIntern/internal/entity"
 	"projectIntern/internal/model"
 	"projectIntern/internal/repository"
+	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/jwt"
 )
 
@@ -25,16 +26,19 @@ func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf) Auth
 }
 
 func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*model.UserResponse, error) {
-	exist, _ := a.userRepo.GetByUsername(ctx, req.Username)
+	exist, _ := a.userRepo.GetByEmail(ctx, req.Email)
 
 	if exist != nil {
-		return nil, errors.New("user already exist")
+		return nil, customerrors.ErrEmailAlreadyExists
 	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
 
 	user := &entity.User{
-		Username: req.Username,
+		ID:       uuid.New(),
 		Email:    req.Email,
 		FullName: req.FullName,
 		Avatar:   req.Avatar,
@@ -47,7 +51,6 @@ func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*mo
 	}
 	userResponse := &model.UserResponse{
 		ID:        user.ID,
-		Username:  user.Username,
 		Email:     user.Email,
 		FullName:  user.FullName,
 		Avatar:    user.Avatar,
@@ -58,21 +61,20 @@ func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*mo
 }
 
 func (a AuthUseCase) Login(ctx context.Context, req *model.UserLogin) (string, error) {
-	user, err := a.userRepo.GetByUsername(ctx, req.Username)
+	user, err := a.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
+		if user == nil {
+			return "", customerrors.ErrEmailInvalid
+		}
 		return "", err
-	}
-
-	if user == nil {
-		return "", errors.New("user not found")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		return "", err
+		return "", customerrors.ErrPasswordInvalid
 	}
 
-	createdToken, err := a.token.CreateToken(user.Username)
+	createdToken, err := a.token.CreateToken(user.ID)
 	if err != nil {
 		return "", err
 	}
