@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"projectIntern/internal/model"
 	"projectIntern/internal/usecase"
+	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/response"
 )
 
@@ -26,6 +28,10 @@ func (a AuthHandler) Register(c *gin.Context) {
 
 	user, err := a.userUC.Register(c, &req)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrEmailAlreadyExists) {
+			response.Error(c, http.StatusConflict, "failed to create user", err)
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Failed to create user", err)
 		return
 	}
@@ -42,6 +48,10 @@ func (a AuthHandler) Login(c *gin.Context) {
 
 	token, err := a.userUC.Login(c, &req)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrEmailInvalid) || errors.Is(err, customerrors.ErrPasswordInvalid) {
+			response.Error(c, http.StatusNotFound, "failed to log in", err)
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "Failed to log in", err)
 		return
 	}
