@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"projectIntern/internal/entity"
@@ -12,10 +11,9 @@ import (
 )
 
 type AuthUseCaseItf interface {
-	Register(ctx context.Context, req *model.UserRegister) (*model.UserResponse, error)
-	Login(ctx context.Context, req *model.UserLogin) (string, error)
+	Register(req *model.UserRegister) (*model.UserResponse, error)
+	Login(req *model.UserLogin) (string, error)
 }
-
 type AuthUseCase struct {
 	userRepo repository.UserRepoItf
 	token    jwt.JWTMakerItf
@@ -25,8 +23,8 @@ func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf) Auth
 	return AuthUseCase{userRepo: userRepo, token: token}
 }
 
-func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*model.UserResponse, error) {
-	exist, _ := a.userRepo.GetByEmail(ctx, req.Email)
+func (a AuthUseCase) Register(req *model.UserRegister) (*model.UserResponse, error) {
+	exist, _ := a.userRepo.GetByEmail(req.Email)
 
 	if exist != nil {
 		return nil, customerrors.ErrEmailAlreadyExists
@@ -45,7 +43,7 @@ func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*mo
 		Password: string(hashPassword),
 	}
 
-	err = a.userRepo.Create(ctx, user)
+	err = a.userRepo.Create(user)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +58,8 @@ func (a AuthUseCase) Register(ctx context.Context, req *model.UserRegister) (*mo
 	return userResponse, nil
 }
 
-func (a AuthUseCase) Login(ctx context.Context, req *model.UserLogin) (string, error) {
-	user, err := a.userRepo.GetByEmail(ctx, req.Email)
+func (a AuthUseCase) Login(req *model.UserLogin) (string, error) {
+	user, err := a.userRepo.GetByEmail(req.Email)
 	if err != nil {
 		if user == nil {
 			return "", customerrors.ErrEmailInvalid

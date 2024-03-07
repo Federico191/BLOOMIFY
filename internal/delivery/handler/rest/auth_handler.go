@@ -26,7 +26,7 @@ func (a AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := a.userUC.Register(c, &req)
+	user, err := a.userUC.Register(&req)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrEmailAlreadyExists) {
 			response.Error(c, http.StatusConflict, "failed to create user", err)
@@ -46,7 +46,7 @@ func (a AuthHandler) Login(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "Failed to bind request", err)
 	}
 
-	token, err := a.userUC.Login(c, &req)
+	token, err := a.userUC.Login(&req)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrEmailInvalid) || errors.Is(err, customerrors.ErrPasswordInvalid) {
 			response.Error(c, http.StatusNotFound, "failed to log in", err)
