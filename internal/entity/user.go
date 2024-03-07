@@ -1,10 +1,12 @@
 package entity
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type User struct {
-	ID        uint      `gorm:"primaryKey"`
-	Username  string    `gorm:"size:10; unique"`
+	ID        uuid.UUID `gorm:"primaryKey;size:36"`
 	Email     string    `gorm:"size:50, not null"`
 	FullName  string    `gorm:"size:255; not null"`
 	Avatar    string    `gorm:"size:255"`
