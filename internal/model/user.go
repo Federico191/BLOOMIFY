@@ -6,10 +6,10 @@ import (
 )
 
 type UserRegister struct {
-	Email    string `json:"email" binding:"required,email"`
-	FullName string `json:"full_name" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Avatar   string `json:"avatar"`
+	Email           string `json:"email" binding:"required,email"`
+	FullName        string `json:"full_name" binding:"required"`
+	Password        string `json:"password" binding:"required"`
+	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
 }
 
 type UserLogin struct {
