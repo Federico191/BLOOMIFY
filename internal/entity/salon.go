@@ -15,10 +15,12 @@ type Salon struct {
 	PhotoLink string    `gorm:"size:200"`
 	CreatedAt time.Time `gorm:"autoCreateTime:milli"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime:milli"`
+	Treatment []SalonTreatment
 }
 
 type SalonTreatment struct {
-	SalonId   uuid.UUID `gorm:"primaryKey;varchar(36)"`
+	ID        uint      `gorm:"primaryKey;autoIncrement"`
+	SalonId   uuid.UUID `gorm:"varchar(36)"`
 	Salon     Salon     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Name      string    `gorm:"size:255;not null"`
 	Problem   string    `gorm:"size:255;not null"`

@@ -15,9 +15,11 @@ type SpaMassage struct {
 	PhotoLink string    `gorm:"size:200"`
 	CreatedAt time.Time `gorm:"autoCreateTime:milli"`
 	UpdateAt  time.Time `gorm:"autoUpdateTime:milli"`
+	Treatment []SpaMassageTreatment
 }
 
 type SpaMassageTreatment struct {
+	ID           uint       `gorm:"primaryKey;autoIncrement"`
 	SpaMassageId uuid.UUID  `gorm:"primaryKey;varchar(36)"`
 	SpaMassage   SpaMassage `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Name         string     `gorm:"size:255;not null"`
