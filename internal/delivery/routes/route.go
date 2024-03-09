@@ -20,7 +20,7 @@ func (r *Route) MountEndPoint() {
 	routerGroup.POST("/login", r.Handler.Auth.Login)
 	routerGroup.GET("/verification/:code")
 
-	place := routerGroup.Group("/beauty_clinic")
+	place := routerGroup.Group("/place")
 	place.GET("/", r.Handler.Place.GetAll)
 	place.GET("/", r.Handler.Place.GetByCity)
 	place.GET("/", r.Handler.Place.GetByTreatment)
