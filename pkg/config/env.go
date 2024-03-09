@@ -7,6 +7,7 @@ import (
 
 type Env struct {
 	APort        string `mapstructure:"APP_PORT"`
+	AHost        string `mapstructure:"APP_HOST"`
 	DBUsername   string `mapstructure:"DATABASE_USERNAME"`
 	DBPassword   string `mapstructure:"DATABASE_PASSWORD"`
 	DBHost       string `mapstructure:"DATABASE_HOST"`
@@ -19,8 +20,8 @@ type Env struct {
 	EmailFrom    string `mapstructure:"EMAIL_FROM"`
 	SMTPHost     string `mapstructure:"SMTP_HOST"`
 	SMTPPort     string `mapstructure:"SMTP_PORT"`
-	SMTPUser     string `mapstrucure:"SMTP_USER"`
-	SMTPPassword string `mapstrucure:"SMTP_PASSWORD"`
+	SMTPUser     string `mapstructure:"SMTP_USER"`
+	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
 }
 
 func NewEnv(path string) (*Env, error) {
