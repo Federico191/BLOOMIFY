@@ -1,20 +1,25 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"projectIntern/internal/entity"
 	"projectIntern/internal/model"
 	"projectIntern/internal/repository"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/email"
+	"projectIntern/pkg/encode"
 	"projectIntern/pkg/jwt"
 )
 
 type AuthUseCaseItf interface {
 	Register(req *model.UserRegister) (*model.UserResponse, error)
 	Login(req *model.UserLogin) (string, error)
+	GetByVerificationCode(code string) (*entity.User, error)
+	VerifyEmail(id uuid.UUID) error
 }
 type AuthUseCase struct {
 	userRepo repository.UserRepoItf
@@ -27,43 +32,43 @@ func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf, emai
 }
 
 func (a AuthUseCase) Register(req *model.UserRegister) (*model.UserResponse, error) {
-	exist, _ := a.userRepo.GetByEmail(req.Email)
-
-	if exist != nil {
-		return nil, customerrors.ErrEmailAlreadyExists
-	}
-
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 
+	rawCode := randstr.Hex(20)
+
+	code := encode.Encode(rawCode)
+
 	user := &entity.User{
-		ID:       uuid.New(),
-		Email:    req.Email,
-		FullName: req.FullName,
-		Password: string(hashPassword),
+		ID:               uuid.New(),
+		Email:            req.Email,
+		FullName:         req.FullName,
+		Password:         string(hashPassword),
+		VerificationCode: rawCode,
 	}
 
 	err = a.userRepo.Create(user)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrEmailAlreadyExists) {
+
+			return nil, err
+		}
 		return nil, err
 	}
 
-	verificationUrl := randstr.Hex(20)
-
-	err = a.email.SendEmailVerification(user, verificationUrl)
+	err = a.email.SendEmailVerification(user, code)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
-
-	user.IsVerified = true
 
 	userResponse := &model.UserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
 		FullName:  user.FullName,
-		Avatar:    user.Avatar,
+		Avatar:    user.PhotoLink,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
@@ -84,10 +89,37 @@ func (a AuthUseCase) Login(req *model.UserLogin) (string, error) {
 		return "", customerrors.ErrPasswordInvalid
 	}
 
+	if !user.IsVerified {
+		return "", customerrors.ErrNotVerified
+	}
+
 	createdToken, err := a.token.CreateToken(user.ID)
 	if err != nil {
 		return "", err
 	}
 	return createdToken, nil
 
+}
+
+func (a AuthUseCase) VerifyEmail(id uuid.UUID) error {
+	user, err := a.userRepo.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	err = a.userRepo.Update(user, model.UserUpdate{IsVerified: true})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a AuthUseCase) GetByVerificationCode(code string) (*entity.User, error) {
+	user, err := a.userRepo.GetByVerificationCode(code)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
