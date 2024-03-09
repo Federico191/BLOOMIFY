@@ -2,25 +2,26 @@ package usecase
 
 import (
 	"projectIntern/internal/repository"
+	"projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
 )
 
 type UseCase struct {
-	Auth          AuthUseCaseItf
-	User          UserUCItf
-	BeautyClinic  BeautyClinicUCItf
-	Salon         SalonUCItf
-	SpaMassage    SpaMassageUCItf
-	FitnessCenter FitnessCenterUCItf
+	Auth    AuthUseCaseItf
+	User    UserUCItf
+	Place   PlaceUCItf
+	Service ServiceItf
+	Class   ClassUCItf
+	Review  ReviewUCItf
 }
 
-func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf) *UseCase {
+func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf, email email.EmailItf) *UseCase {
 	return &UseCase{
-		Auth:          NewAuthUseCase(repo.User, tokenMaker),
-		BeautyClinic:  NewBeautyClinicUC(repo.BeautyClinic),
-		Salon:         NewSalonUC(repo.SalonRepo),
-		SpaMassage:    NewSpaMassageUC(repo.SpaMassage),
-		User:          NewUseUC(repo.User),
-		FitnessCenter: NewFitnessCenterUc(repo.FitnessCenter),
+		Auth:    NewAuthUseCase(repo.User, tokenMaker, email),
+		User:    NewUseUC(repo.User),
+		Place:   NewPlaceUC(repo.Place),
+		Service: NewService(repo.Service),
+		Class:   NewClassUc(repo.Class),
+		Review:  NewReviewUC(repo.Review),
 	}
 }

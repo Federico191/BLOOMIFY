@@ -3,19 +3,20 @@ package repository
 import "gorm.io/gorm"
 
 type Repository struct {
-	User          UserRepoItf
-	BeautyClinic  BeautyClinicRepoItf
-	SalonRepo     SalonRepoItf
-	SpaMassage    SpaMassageRepoItf
-	FitnessCenter FitnessCenterRepoItf
+	User     UserRepoItf
+	Place    PlaceRepoItf
+	Service  ServiceRepoItf
+	Class    ClassRepoItf
+	Review   ReviewRepoItf
+	Category CategoryRepoItf
 }
 
 func Init(db *gorm.DB) *Repository {
 	return &Repository{
-		User:          NewUserRepo(db),
-		BeautyClinic:  NewBeautyClinicRepo(db),
-		SalonRepo:     NewSalonRepo(db),
-		SpaMassage:    NewSpaMassageRepo(db),
-		FitnessCenter: NewFitnessCenterRepo(db),
+		User:    NewUserRepo(db),
+		Place:   NewPlace(db),
+		Service: NewServiceRepo(db),
+		Class:   NewClassRepo(db),
+		Review:  NewReviewRepo(db),
 	}
 }

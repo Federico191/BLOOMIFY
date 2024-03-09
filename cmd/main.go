@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	email3 "github.com/jordan-wright/email"
 	"log"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/routes"
@@ -9,6 +10,7 @@ import (
 	"projectIntern/internal/usecase"
 	"projectIntern/pkg/config"
 	"projectIntern/pkg/database/mysql"
+	email2 "projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
 )
 
@@ -27,16 +29,23 @@ func main() {
 
 	repo := repository.Init(db)
 
+	mysql.InitSeed(db)
+
 	jwtAuth := jwt.NewJWT(env.SecretToken)
 
-	uc := usecase.Init(repo, jwtAuth)
+	email := email3.NewEmail()
+
+	emailVerify := email2.NewEmail(email, env)
+
+	uc := usecase.Init(repo, jwtAuth, emailVerify)
 
 	handler := rest.Init(uc)
 
 	router := gin.Default()
 
-	authRoute := routes.AuthRoute{Router: router, AuthHandler: handler.Auth}
-	authRoute.Register()
+	route := routes.NewRoute(handler, router)
+
+	route.MountEndPoint()
 
 	err = router.Run(env.APort)
 	if err != nil {
