@@ -2,40 +2,61 @@ package email
 
 import (
 	"fmt"
-	"github.com/jordan-wright/email"
-	"net/smtp"
+	"gopkg.in/gomail.v2"
 	"projectIntern/internal/entity"
 	"projectIntern/pkg/config"
+	"strconv"
 )
 
 const appName = "Bloomify"
 
 type EmailItf interface {
-	SendEmailVerification(user *entity.User, verificationUrl string) error
+	SendEmailVerification(user *entity.User, verificationCode string) error
 }
 
 type Email struct {
-	email *email.Email
-	env   *config.Env
+	env *config.Env
 }
 
-func NewEmail(email *email.Email, env *config.Env) EmailItf {
-	return &Email{email: email, env: env}
+func NewEmail(env *config.Env) EmailItf {
+	return &Email{env: env}
 }
 
-func (e Email) SendEmailVerification(user *entity.User, verificationUrl string) error {
-	auth := smtp.PlainAuth("", e.env.EmailFrom, e.env.SMTPPassword, e.env.SMTPHost)
+func (e Email) SendEmailVerification(user *entity.User, verificationCode string) error {
+	url := "http://" + e.env.AHost + e.env.APort + "/" + "verify_email" + "/" + verificationCode
 
-	textString := fmt.Sprintf("Dear %s,\n\nThank you for registering with %s. To complete the registration process, you need to verify your email.\n\nPlease click the link below:\n\n%s\n\nIf you did not request registration with %s, you can ignore this email.\n\nThank you.\n\nRegards,\nThe %s Team\n", user.FullName, appName, verificationUrl, appName, appName)
+	textString := fmt.Sprintf(
+		"Dear %s,\n\n"+
+			"Thank you for registering with %s. To complete the registration process, you need to verify your email.\n\n"+
+			"Please click the link below:\n\n%s\n\n"+
+			"If you did not request registration with %s, you can ignore this email.\n\n"+
+			"Thank you.\n\n"+
+			"Regards,\n"+
+			"The %s Team\n",
+		user.FullName,
+		appName,
+		url,
+		appName,
+		appName,
+	)
 
-	text := []byte(textString)
+	mailer := gomail.NewMessage()
+	mailer.SetHeader("From", e.env.EmailFrom)
+	mailer.SetHeader("To", user.Email)
+	mailer.SetHeader("Subject", "Your email verification")
+	mailer.SetBody("text/html", textString)
 
-	createdEmail := email.Email{
-		From:    e.env.EmailFrom,
-		To:      []string{user.Email},
-		Subject: "Your account verification",
-		Text:    text,
+	port, err := strconv.Atoi(e.env.SMTPPort)
+	if err != nil {
+		return err
 	}
 
-	return createdEmail.Send(user.Email, auth)
+	dialer := gomail.NewDialer(e.env.SMTPHost, port, e.env.SMTPUser, e.env.SMTPPassword)
+
+	err = dialer.DialAndSend(mailer)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
