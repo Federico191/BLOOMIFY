@@ -25,3 +25,10 @@ type UserResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type UserUpdate struct {
+	Email      string `json:"-"`
+	FullName   string `json:"-"`
+	Password   string `json:"-"`
+	IsVerified bool   `json:"-" `
+}
