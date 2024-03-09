@@ -36,7 +36,7 @@ func (a AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Success Register user", user)
+	response.Success(c, http.StatusCreated, "Success Register user", user)
 }
 
 func (a AuthHandler) Login(c *gin.Context) {

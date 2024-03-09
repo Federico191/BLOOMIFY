@@ -2,11 +2,13 @@ package usecase
 
 import (
 	"github.com/google/uuid"
+	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
 	"projectIntern/internal/entity"
 	"projectIntern/internal/model"
 	"projectIntern/internal/repository"
 	"projectIntern/pkg/customerrors"
+	"projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
 )
 
@@ -17,10 +19,11 @@ type AuthUseCaseItf interface {
 type AuthUseCase struct {
 	userRepo repository.UserRepoItf
 	token    jwt.JWTMakerItf
+	email    email.EmailItf
 }
 
-func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf) AuthUseCaseItf {
-	return AuthUseCase{userRepo: userRepo, token: token}
+func NewAuthUseCase(userRepo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf) AuthUseCaseItf {
+	return AuthUseCase{userRepo: userRepo, token: token, email: email}
 }
 
 func (a AuthUseCase) Register(req *model.UserRegister) (*model.UserResponse, error) {
@@ -39,7 +42,6 @@ func (a AuthUseCase) Register(req *model.UserRegister) (*model.UserResponse, err
 		ID:       uuid.New(),
 		Email:    req.Email,
 		FullName: req.FullName,
-		Avatar:   req.Avatar,
 		Password: string(hashPassword),
 	}
 
@@ -47,6 +49,16 @@ func (a AuthUseCase) Register(req *model.UserRegister) (*model.UserResponse, err
 	if err != nil {
 		return nil, err
 	}
+
+	verificationUrl := randstr.Hex(20)
+
+	err = a.email.SendEmailVerification(user, verificationUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	user.IsVerified = true
+
 	userResponse := &model.UserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
