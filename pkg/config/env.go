@@ -6,13 +6,21 @@ import (
 )
 
 type Env struct {
-	APort       string `mapstructure:"APP_PORT"`
-	DBUsername  string `mapstructure:"DATABASE_USERNAME"`
-	DBPassword  string `mapstructure:"DATABASE_PASSWORD"`
-	DBHost      string `mapstructure:"DATABASE_HOST"`
-	DBPort      string `mapstructure:"DATABASE_PORT"`
-	DBName      string `mapstructure:"DATABASE_NAME"`
-	SecretToken string `mapstructure:"SECRET_TOKEN"`
+	APort        string `mapstructure:"APP_PORT"`
+	DBUsername   string `mapstructure:"DATABASE_USERNAME"`
+	DBPassword   string `mapstructure:"DATABASE_PASSWORD"`
+	DBHost       string `mapstructure:"DATABASE_HOST"`
+	DBPort       string `mapstructure:"DATABASE_PORT"`
+	DBName       string `mapstructure:"DATABASE_NAME"`
+	SecretToken  string `mapstructure:"SECRET_TOKEN"`
+	ClientId     string `mapstructure:"CLIENT_ID"`
+	ClientSecret string `mapstructure:"CLIENT_SECRET"`
+	RedirectUrl  string `mapstructure:"REDIRECT_URL"`
+	EmailFrom    string `mapstructure:"EMAIL_FROM"`
+	SMTPHost     string `mapstructure:"SMTP_HOST"`
+	SMTPPort     string `mapstructure:"SMTP_PORT"`
+	SMTPUser     string `mapstrucure:"SMTP_USER"`
+	SMTPPassword string `mapstrucure:"SMTP_PASSWORD"`
 }
 
 func NewEnv(path string) (*Env, error) {
