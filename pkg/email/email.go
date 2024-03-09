@@ -23,22 +23,56 @@ func NewEmail(env *config.Env) EmailItf {
 }
 
 func (e Email) SendEmailVerification(user *entity.User, verificationCode string) error {
-	url := "http://" + e.env.AHost + e.env.APort + "/" + "verify_email" + "/" + verificationCode
+	url := "http://" + e.env.AHost + e.env.APort + "/api/v1" + "/" + "verify_email" + "/" + verificationCode
 
-	textString := fmt.Sprintf(
-		"Dear %s,\n\n"+
-			"Thank you for registering with %s. To complete the registration process, you need to verify your email.\n\n"+
-			"Please click the link below:\n\n%s\n\n"+
-			"If you did not request registration with %s, you can ignore this email.\n\n"+
-			"Thank you.\n\n"+
-			"Regards,\n"+
-			"The %s Team\n",
-		user.FullName,
-		appName,
-		url,
-		appName,
-		appName,
-	)
+	textString := fmt.Sprintf(`
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .header {
+                background-color: #f2f2f2;
+                padding: 20px;
+                text-align: center;
+            }
+            .content {
+                padding: 20px;
+            }
+            .button {
+                display: inline-block;
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2>Thank You for Registering with %s</h2>
+            </div>
+            <div class="content">
+                <p>Dear %s,</p>
+                <p>Thank you for registering with %s. To complete the registration process, you need to verify your email.</p>
+                <p>Please click the button below to verify your email:</p>
+                <a href="%s" class="button">Verify Email</a>
+                <p>If you did not request registration with %s, you can ignore this email.</p>
+                <p>Thank you.</p>
+                <p>Regards,<br/>The %s Team</p>
+            </div>
+        </div>
+    </body>
+    </html>
+`,
+		appName, user.FullName, appName, url, appName, appName)
 
 	mailer := gomail.NewMessage()
 	mailer.SetHeader("From", e.env.EmailFrom)
