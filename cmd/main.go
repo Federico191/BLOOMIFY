@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	email3 "github.com/jordan-wright/email"
 	"log"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/routes"
@@ -10,7 +9,7 @@ import (
 	"projectIntern/internal/usecase"
 	"projectIntern/pkg/config"
 	"projectIntern/pkg/database/mysql"
-	email2 "projectIntern/pkg/email"
+	"projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
 )
 
@@ -33,9 +32,7 @@ func main() {
 
 	jwtAuth := jwt.NewJWT(env.SecretToken)
 
-	email := email3.NewEmail()
-
-	emailVerify := email2.NewEmail(email, env)
+	emailVerify := email.NewEmail(env)
 
 	uc := usecase.Init(repo, jwtAuth, emailVerify)
 
