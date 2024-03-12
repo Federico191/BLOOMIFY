@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
-	"projectIntern/internal/model"
+	"projectIntern/model"
 )
 
 type UserRepoItf interface {
