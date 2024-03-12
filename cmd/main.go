@@ -18,7 +18,7 @@ import (
 
 func main() {
 	env, err := config.NewEnv("../")
-	if err != nil {
+	if err != nil && env == nil {
 		log.Fatalf("cannot load env: %v", err)
 	}
 
