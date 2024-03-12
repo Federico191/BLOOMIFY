@@ -14,14 +14,13 @@ type Env struct {
 	DBPort       string `mapstructure:"DATABASE_PORT"`
 	DBName       string `mapstructure:"DATABASE_NAME"`
 	SecretToken  string `mapstructure:"SECRET_TOKEN"`
-	ClientId     string `mapstructure:"CLIENT_ID"`
-	ClientSecret string `mapstructure:"CLIENT_SECRET"`
-	RedirectUrl  string `mapstructure:"REDIRECT_URL"`
+	ExpiredToken string `mapstructure:"EXPIRED_TOKEN"`
 	EmailFrom    string `mapstructure:"EMAIL_FROM"`
 	SMTPHost     string `mapstructure:"SMTP_HOST"`
 	SMTPPort     string `mapstructure:"SMTP_PORT"`
 	SMTPUser     string `mapstructure:"SMTP_USER"`
 	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
+	ServerKey    string `mapstructure:"SERVER_KEY"`
 }
 
 func NewEnv(path string) (*Env, error) {
