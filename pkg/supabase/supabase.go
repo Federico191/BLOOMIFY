@@ -1,4 +1,4 @@
-package pkg
+package supabase
 
 import (
 	supabasestorageuploader "github.com/adityarizkyramadhan/supabase-storage-uploader"
