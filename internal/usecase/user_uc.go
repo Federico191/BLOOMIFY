@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/thanhpk/randstr"
 	"golang.org/x/crypto/bcrypt"
@@ -10,6 +11,7 @@ import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
 	"projectIntern/model"
+	"projectIntern/pkg"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/email"
 	"projectIntern/pkg/encode"
@@ -22,16 +24,42 @@ type UserUCItf interface {
 	GetByVerificationCode(code string) (*entity.User, error)
 	VerifyEmail(id uuid.UUID) error
 	GetById(id uuid.UUID) (*entity.User, error)
+	UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error
 }
 
 type UserUC struct {
 	userRepo repository.UserRepoItf
 	token    jwt.JWTMakerItf
 	email    email.EmailItf
+	supabase pkg.SupabaseStorageItf
 }
 
-func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf) UserUCItf {
-	return &UserUC{userRepo: repo, token: token, email: email}
+func (u UserUC) UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error {
+	user, err := u.token.GetLoginUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	if user.PhotoLink != "" {
+		err = u.supabase.Delete(user.PhotoLink)
+	}
+
+	link, err := u.supabase.Upload(param.Photo)
+	if err != nil {
+		return err
+	}
+
+	err = u.userRepo.Update(user, model.UserUpdate{PhotoLink: link})
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf, supabase pkg.SupabaseStorageItf) UserUCItf {
+	return &UserUC{userRepo: repo, token: token, email: email, supabase: supabase}
 }
 
 func (u UserUC) GetById(id uuid.UUID) (*entity.User, error) {

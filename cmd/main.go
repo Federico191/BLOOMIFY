@@ -1,6 +1,7 @@
 package main
 
 import (
+	supabasestorageuploader "github.com/adityarizkyramadhan/supabase-storage-uploader"
 	"github.com/gin-gonic/gin"
 	"log"
 	"projectIntern/internal/delivery/handler/rest"
@@ -8,6 +9,7 @@ import (
 	"projectIntern/internal/delivery/routes"
 	"projectIntern/internal/repository"
 	"projectIntern/internal/usecase"
+	"projectIntern/pkg"
 	"projectIntern/pkg/config"
 	"projectIntern/pkg/database/mysql"
 	"projectIntern/pkg/email"
@@ -29,11 +31,15 @@ func main() {
 
 	repo := repository.Init(db)
 
+	client := supabasestorageuploader.New(env.SupabaseUrl, env.SupabaseKey, env.SupabaseBucket)
+
+	supabase := pkg.NewSupabaseStorage(client)
+
 	jwtAuth := jwt.NewJWT(env)
 
 	emailVerify := email.NewEmail(env)
 
-	uc := usecase.Init(repo, jwtAuth, emailVerify)
+	uc := usecase.Init(repo, jwtAuth, emailVerify, supabase)
 
 	handler := rest.Init(uc)
 

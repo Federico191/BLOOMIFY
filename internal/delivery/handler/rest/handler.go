@@ -5,14 +5,14 @@ import (
 )
 
 type Handler struct {
-	Auth   *AuthHandler
+	User   *UserHandler
 	Place  *PlaceHandler
 	Review *ReviewHandler
 }
 
 func Init(useCase *usecase.UseCase) *Handler {
 	return &Handler{
-		Auth:   NewAuthHandler(useCase.User),
+		User:   NewUserHandler(useCase.User),
 		Place:  NewPlaceHandler(useCase.Place),
 		Review: NewReviewHandler(useCase.Review),
 	}

@@ -73,3 +73,12 @@ func (u UserRepository) Update(user *entity.User, req model.UserUpdate) error {
 
 	return nil
 }
+
+func (u UserRepository) Delete(user *entity.User) error {
+	err := u.db.Debug().Delete(&user).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

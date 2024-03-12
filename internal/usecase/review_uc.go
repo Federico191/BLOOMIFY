@@ -3,15 +3,33 @@ package usecase
 import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
+	"projectIntern/model"
 )
 
 type ReviewUCItf interface {
+	Create(req model.ReviewRequest) (*entity.Review, error)
 	GetAll(page int) ([]*entity.Review, error)
 	GetByRating(rating float64, page int) ([]*entity.Review, error)
 }
 
 type ReviewUC struct {
 	repo repository.ReviewRepoItf
+}
+
+func (r ReviewUC) Create(req model.ReviewRequest) (*entity.Review, error) {
+	review := &entity.Review{
+		UserID:  req.UserId,
+		PlaceID: req.PlaceId,
+		Rating:  req.Rating,
+		Review:  req.Review,
+	}
+
+	err := r.repo.Create(review)
+	if err != nil {
+		return nil, err
+	}
+
+	return review, nil
 }
 
 func (r ReviewUC) GetAll(page int) ([]*entity.Review, error) {

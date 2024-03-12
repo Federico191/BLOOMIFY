@@ -1,9 +1,12 @@
 package jwt
 
 import (
+	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"log"
+	"projectIntern/internal/entity"
 	"projectIntern/pkg/config"
 	"strconv"
 	"time"
@@ -12,10 +15,20 @@ import (
 type JWTMakerItf interface {
 	CreateToken(id uuid.UUID) (string, error)
 	VerifyToken(tokenString string) (uuid.UUID, error)
+	GetLoginUser(ctx *gin.Context) (*entity.User, error)
 }
 
 type JWTMaker struct {
 	env *config.Env
+}
+
+func (j JWTMaker) GetLoginUser(ctx *gin.Context) (*entity.User, error) {
+	user, ok := ctx.Get("user")
+	if !ok {
+		return &entity.User{}, errors.New("failed to get user")
+	}
+
+	return user.(*entity.User), nil
 }
 
 type Claims struct {
@@ -23,7 +36,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func NewJWT(env *config.Env) JWTMaker {
+func NewJWT(env *config.Env) JWTMakerItf {
 	return JWTMaker{env: env}
 }
 

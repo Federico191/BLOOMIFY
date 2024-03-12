@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"mime/multipart"
 	"time"
 )
 
@@ -27,8 +28,13 @@ type UserResponse struct {
 }
 
 type UserUpdate struct {
-	Email      string `json:"-"`
-	FullName   string `json:"-"`
-	Password   string `json:"-"`
-	IsVerified bool   `json:"-" `
+	Email      string `json:"email"`
+	FullName   string `json:"full_name"`
+	Password   string `json:"password"`
+	IsVerified bool   `json:"is_verified"`
+	PhotoLink  string `json:"photo_link"`
+}
+
+type UserUploadPhoto struct {
+	Photo *multipart.FileHeader `form:"photo"`
 }

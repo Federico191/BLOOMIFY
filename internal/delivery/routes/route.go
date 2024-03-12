@@ -20,10 +20,10 @@ func (r *Route) MountEndPoint() {
 	r.Middleware.CorsMiddleware()
 
 	routerGroup := r.Router.Group("/api/v1")
-	routerGroup.POST("/register", r.Handler.Auth.Register)
-	routerGroup.POST("/login", r.Handler.Auth.Login)
-	routerGroup.GET("/verify_email/:code", r.Handler.Auth.VerifyEmail)
-	routerGroup.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.Auth.GetUser)
+	routerGroup.POST("/register", r.Handler.User.Register)
+	routerGroup.POST("/login", r.Handler.User.Login)
+	routerGroup.GET("/verify_email/:code", r.Handler.User.VerifyEmail)
+	routerGroup.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
 
 	beautyClinic := routerGroup.Group("/beauty_clinic")
 	beautyClinic.GET("/", r.Handler.Place.GetAllBeautyClinic)

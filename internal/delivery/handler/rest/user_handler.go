@@ -9,18 +9,20 @@ import (
 	"projectIntern/model"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/encode"
+	"projectIntern/pkg/jwt"
 	"projectIntern/pkg/response"
 )
 
-type AuthHandler struct {
+type UserHandler struct {
 	userUC usecase.UserUCItf
+	jwt    jwt.JWTMakerItf
 }
 
-func NewAuthHandler(userUC usecase.UserUCItf) *AuthHandler {
-	return &AuthHandler{userUC: userUC}
+func NewUserHandler(userUC usecase.UserUCItf) *UserHandler {
+	return &UserHandler{userUC: userUC}
 }
 
-func (a AuthHandler) Register(c *gin.Context) {
+func (a UserHandler) Register(c *gin.Context) {
 	var req model.UserRegister
 
 	if err := c.ShouldBind(&req); err != nil {
@@ -41,7 +43,7 @@ func (a AuthHandler) Register(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Success Register user", user)
 }
 
-func (a AuthHandler) Login(c *gin.Context) {
+func (a UserHandler) Login(c *gin.Context) {
 	var req model.UserLogin
 
 	if err := c.ShouldBind(&req); err != nil {
@@ -65,7 +67,7 @@ func (a AuthHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Token": token, "Message": "Success Login"})
 }
 
-func (a AuthHandler) VerifyEmail(ctx *gin.Context) {
+func (a UserHandler) VerifyEmail(ctx *gin.Context) {
 	codeQuery := ctx.Param("code")
 
 	code, err := encode.Decode(codeQuery)
@@ -94,7 +96,22 @@ func (a AuthHandler) VerifyEmail(ctx *gin.Context) {
 	response.Success(ctx, http.StatusOK, "Successfully verification account", nil)
 }
 
-func (a AuthHandler) GetUser(ctx *gin.Context) {
+func (a UserHandler) UpdatePhoto(ctx *gin.Context) {
+	photo, err := ctx.FormFile("photo")
+	if err != nil {
+		response.Error(ctx, http.StatusBadRequest, "failed to bind input", err)
+	}
+
+	err = a.userUC.UpdatePhoto(ctx, model.UserUploadPhoto{Photo: photo})
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "failed to upload photo", err)
+		return
+	}
+
+	response.Success(ctx, http.StatusCreated, "success upload photo", photo)
+}
+
+func (a UserHandler) GetUser(ctx *gin.Context) {
 	user, ok := ctx.Get("userId")
 	if !ok {
 		response.Error(ctx, http.StatusNotFound, "failed to get user", nil)
