@@ -29,8 +29,6 @@ func main() {
 
 	repo := repository.Init(db)
 
-	mysql.InitSeed(db)
-
 	jwtAuth := jwt.NewJWT(env)
 
 	emailVerify := email.NewEmail(env)

@@ -2,15 +2,14 @@ package entity
 
 import (
 	"github.com/google/uuid"
-	"time"
+	"gorm.io/gorm"
 )
 
 type Review struct {
-	ID        uint      `gorm:"primaryKey"`
-	PlaceId   uuid.UUID `gorm:"primaryKey"`
-	Place     Place     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Rating    float64   `gorm:"not null"`
-	Review    string    `gorm:"not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime:milli"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime:milli"`
+	gorm.Model
+	UserID  uuid.UUID `gorm:"size:36;foreignKey:ID"`
+	User    User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	PlaceID uint      `gorm:"foreignKey:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Rating  int       `gorm:"not null"`
+	Review  string    `gorm:"not null"`
 }

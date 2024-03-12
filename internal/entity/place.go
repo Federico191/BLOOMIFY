@@ -1,22 +1,19 @@
 package entity
 
 import (
-	"github.com/google/uuid"
-	"time"
+	"gorm.io/gorm"
 )
 
 type Place struct {
-	ID         uuid.UUID `gorm:"primaryKey;varchar(36)"`
-	Name       string    `gorm:"size:255;not null"`
-	Address    string    `gorm:"size:255;not null;unique"`
-	City       string    `gorm:"size:255;not null"`
-	Contact    string    `gorm:"size:100;not null"`
-	Hour       string    `gorm:"not null"`
-	PhotoLink  string    `gorm:"size:200"`
-	CategoryId int       `gorm:"foreignKey:CategoryID"`
-	Category   Category  `gorm:"references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	CreatedAt  time.Time `gorm:"autoUpdateTime:milli"`
-	UpdatedAt  time.Time `gorm:"autoUpdateTime:milli"`
+	gorm.Model
+	Name       string   `gorm:"size:255;not null"`
+	Address    string   `gorm:"size:255;not null;unique"`
+	City       string   `gorm:"size:255;not null"`
+	Contact    string   `gorm:"size:100;not null"`
+	Hour       string   `gorm:"size:20;not null"`
+	PhotoLink  string   `gorm:"size:255"`
+	CategoryId int      `gorm:"foreignKey:CategoryID"`
+	Category   Category `gorm:"references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Service    []Service
 	Review     []Review
 }

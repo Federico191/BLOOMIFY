@@ -10,7 +10,6 @@ type UseCase struct {
 	User    UserUCItf
 	Place   PlaceUCItf
 	Service ServiceItf
-	Class   ClassUCItf
 	Review  ReviewUCItf
 }
 
@@ -19,7 +18,6 @@ func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf, email email.E
 		User:    NewUseUC(repo.User, tokenMaker, email),
 		Place:   NewPlaceUC(repo.Place),
 		Service: NewService(repo.Service),
-		Class:   NewClassUc(repo.Class),
 		Review:  NewReviewUC(repo.Review),
 	}
 }
