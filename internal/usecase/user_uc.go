@@ -55,7 +55,6 @@ func (u UserUC) UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error
 	}
 
 	return nil
-
 }
 
 func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf, supabase pkg.SupabaseStorageItf) UserUCItf {

@@ -17,13 +17,16 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 }
 
 func (r *Route) MountEndPoint() {
-	r.Middleware.CorsMiddleware()
+	r.Router.Use(r.Middleware.CorsMiddleware())
 
 	routerGroup := r.Router.Group("/api/v1")
 	routerGroup.POST("/register", r.Handler.User.Register)
 	routerGroup.POST("/login", r.Handler.User.Login)
 	routerGroup.GET("/verify_email/:code", r.Handler.User.VerifyEmail)
 	routerGroup.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
+
+	profile := routerGroup.Group("/profile")
+	profile.POST("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.UpdatePhoto)
 
 	beautyClinic := routerGroup.Group("/beauty_clinic")
 	beautyClinic.GET("/", r.Handler.Place.GetAllBeautyClinic)

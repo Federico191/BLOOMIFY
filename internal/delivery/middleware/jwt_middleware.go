@@ -25,6 +25,13 @@ func (m Middleware) JwtAuthMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set("userId", userId)
+	user, err := m.useCase.User.GetById(userId)
+	if err != nil {
+		response.Error(ctx, http.StatusUnauthorized, "failed to get user", err)
+		ctx.Abort()
+		return
+	}
+
+	ctx.Set("user", user)
 	ctx.Next()
 }

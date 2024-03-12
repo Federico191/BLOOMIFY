@@ -112,7 +112,7 @@ func (a UserHandler) UpdatePhoto(ctx *gin.Context) {
 }
 
 func (a UserHandler) GetUser(ctx *gin.Context) {
-	user, ok := ctx.Get("userId")
+	user, ok := ctx.Get("user")
 	if !ok {
 		response.Error(ctx, http.StatusNotFound, "failed to get user", nil)
 	}
