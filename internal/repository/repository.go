@@ -1,6 +1,9 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"projectIntern/internal/repository/category"
+)
 
 type Repository struct {
 	User     UserRepoItf
@@ -8,7 +11,7 @@ type Repository struct {
 	Service  ServiceRepoItf
 	Class    ClassRepoItf
 	Review   ReviewRepoItf
-	Category CategoryRepoItf
+	Category category.CategoryRepoItf
 }
 
 func Init(db *gorm.DB) *Repository {

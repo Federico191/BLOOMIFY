@@ -1,54 +1,70 @@
 package usecase
 
 import (
-	"github.com/google/uuid"
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
+	"projectIntern/model"
 )
 
 type PlaceUCItf interface {
-	GetAll(page int) ([]*entity.Place, error)
-	GetByCity(city string, page int) ([]*entity.Place, error)
-	GetTreatment(id uuid.UUID) (*entity.Place, error)
-	GetClasses(id uuid.UUID) (*entity.Place, error)
+	GetAllBeautyClinic(filter model.FilterParam, page int) ([]*entity.Place, error)
+	GetAllSalon(filter model.FilterParam, page int) ([]*entity.Place, error)
+	GetAllSpaMassage(filter model.FilterParam, page int) ([]*entity.Place, error)
+	GetAllFitnessCenter(filter model.FilterParam, page int) ([]*entity.Place, error)
 }
 
 type PlaceUC struct {
 	placeRepo repository.PlaceRepoItf
 }
 
-func (p PlaceUC) GetTreatment(id uuid.UUID) (*entity.Place, error) {
-	return p.placeRepo.GetTreatment(id)
-}
-
-func (p PlaceUC) GetClasses(id uuid.UUID) (*entity.Place, error) {
-	return p.placeRepo.GetClass(id)
-}
-
-func (p PlaceUC) GetAll(page int) ([]*entity.Place, error) {
-	limit := 5
-	offset := (page - 1) * limit
-
-	places, err := p.placeRepo.GetByAll(limit, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	return places, nil
-}
-
-func (p PlaceUC) GetByCity(city string, page int) ([]*entity.Place, error) {
-	limit := 5
-	offset := (page - 1) * limit
-
-	places, err := p.placeRepo.GetByCity(city, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	return places, nil
-}
-
 func NewPlaceUC(placeRepo repository.PlaceRepoItf) PlaceUCItf {
 	return &PlaceUC{placeRepo: placeRepo}
+}
+
+func (p PlaceUC) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*entity.Place, error) {
+	limit := 5
+	offset := (page - 1) * limit
+
+	beautyClinics, err := p.placeRepo.GetAllBeautyClinic(filter, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return beautyClinics, nil
+}
+
+func (p PlaceUC) GetAllSalon(filter model.FilterParam, page int) ([]*entity.Place, error) {
+	limit := 5
+	offset := (page - 1) * limit
+
+	salons, err := p.placeRepo.GetAllSalon(filter, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return salons, nil
+}
+
+func (p PlaceUC) GetAllSpaMassage(filter model.FilterParam, page int) ([]*entity.Place, error) {
+	limit := 5
+	offset := (page - 1) * limit
+
+	spaMassages, err := p.placeRepo.GetAllSpaMassage(filter, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return spaMassages, nil
+}
+
+func (p PlaceUC) GetAllFitnessCenter(filter model.FilterParam, page int) ([]*entity.Place, error) {
+	limit := 5
+	offset := (page - 1) * limit
+
+	fitnessCenters, err := p.placeRepo.GetAllFitnessCenter(filter, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	return fitnessCenters, nil
 }

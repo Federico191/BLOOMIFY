@@ -3,20 +3,21 @@ package rest
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
-	"projectIntern/internal/model"
 	"projectIntern/internal/usecase"
+	"projectIntern/model"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/encode"
 	"projectIntern/pkg/response"
 )
 
 type AuthHandler struct {
-	authUC usecase.AuthUseCaseItf
+	userUC usecase.UserUCItf
 }
 
-func NewAuthHandler(authUC usecase.AuthUseCaseItf) *AuthHandler {
-	return &AuthHandler{authUC: authUC}
+func NewAuthHandler(userUC usecase.UserUCItf) *AuthHandler {
+	return &AuthHandler{userUC: userUC}
 }
 
 func (a AuthHandler) Register(c *gin.Context) {
@@ -27,9 +28,9 @@ func (a AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := a.authUC.Register(&req)
+	user, err := a.userUC.Register(&req)
 	if err != nil {
-		if errors.Is(err, customerrors.ErrEmailAlreadyExists) {
+		if errors.Is(err, customerrors.ErrEmailAlreadyExists) || errors.Is(err, gorm.ErrDuplicatedKey) {
 			response.Error(c, http.StatusConflict, "failed to create user", err)
 			return
 		}
@@ -48,7 +49,7 @@ func (a AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := a.authUC.Login(&req)
+	token, err := a.userUC.Login(&req)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrEmailInvalid) || errors.Is(err, customerrors.ErrPasswordInvalid) {
 			response.Error(c, http.StatusUnauthorized, "failed to log in", err)
@@ -73,7 +74,7 @@ func (a AuthHandler) VerifyEmail(ctx *gin.Context) {
 		return
 	}
 
-	user, err := a.authUC.GetByVerificationCode(code)
+	user, err := a.userUC.GetByVerificationCode(code)
 	if err != nil {
 		return
 	}
@@ -85,10 +86,19 @@ func (a AuthHandler) VerifyEmail(ctx *gin.Context) {
 
 	user.IsVerified = true
 
-	err = a.authUC.VerifyEmail(user.ID)
+	err = a.userUC.VerifyEmail(user.ID)
 	if err != nil {
 		return
 	}
 
 	response.Success(ctx, http.StatusOK, "Successfully verification account", nil)
+}
+
+func (a AuthHandler) GetUser(ctx *gin.Context) {
+	user, ok := ctx.Get("userId")
+	if !ok {
+		response.Error(ctx, http.StatusNotFound, "failed to get user", nil)
+	}
+
+	response.Success(ctx, http.StatusOK, "success get user", user)
 }

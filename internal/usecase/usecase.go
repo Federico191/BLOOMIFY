@@ -7,7 +7,6 @@ import (
 )
 
 type UseCase struct {
-	Auth    AuthUseCaseItf
 	User    UserUCItf
 	Place   PlaceUCItf
 	Service ServiceItf
@@ -17,8 +16,7 @@ type UseCase struct {
 
 func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf, email email.EmailItf) *UseCase {
 	return &UseCase{
-		Auth:    NewAuthUseCase(repo.User, tokenMaker, email),
-		User:    NewUseUC(repo.User),
+		User:    NewUseUC(repo.User, tokenMaker, email),
 		Place:   NewPlaceUC(repo.Place),
 		Service: NewService(repo.Service),
 		Class:   NewClassUc(repo.Class),

@@ -13,8 +13,8 @@ type Place struct {
 	Contact    string    `gorm:"size:100;not null"`
 	Hour       string    `gorm:"not null"`
 	PhotoLink  string    `gorm:"size:200"`
-	CategoryId uint      `gorm:"not null;"`
-	Category   Category  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	CategoryId int       `gorm:"foreignKey:CategoryID"`
+	Category   Category  `gorm:"references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt  time.Time `gorm:"autoUpdateTime:milli"`
 	UpdatedAt  time.Time `gorm:"autoUpdateTime:milli"`
 	Service    []Service
