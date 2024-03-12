@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"projectIntern/internal/delivery/handler/rest"
+	"projectIntern/internal/delivery/middleware"
 	"projectIntern/internal/delivery/routes"
 	"projectIntern/internal/repository"
 	"projectIntern/internal/usecase"
@@ -30,7 +31,7 @@ func main() {
 
 	mysql.InitSeed(db)
 
-	jwtAuth := jwt.NewJWT(env.SecretToken)
+	jwtAuth := jwt.NewJWT(env)
 
 	emailVerify := email.NewEmail(env)
 
@@ -40,7 +41,9 @@ func main() {
 
 	router := gin.Default()
 
-	route := routes.NewRoute(handler, router)
+	mdw := middleware.NewMiddleware(jwtAuth, *uc)
+
+	route := routes.NewRoute(handler, router, mdw)
 
 	route.MountEndPoint()
 
