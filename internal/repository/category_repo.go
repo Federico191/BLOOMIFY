@@ -1,4 +1,4 @@
-package category
+package repository
 
 import (
 	"gorm.io/gorm"
@@ -7,7 +7,7 @@ import (
 
 type CategoryRepoItf interface {
 	Create(category *entity.Category) error
-	GetAll(limit, offset int) ([]*entity.Category, error)
+	GetById(id int) (*entity.Category, error)
 }
 
 type CategoryRepo struct {
@@ -27,13 +27,13 @@ func (c CategoryRepo) Create(category *entity.Category) error {
 	return nil
 }
 
-func (c CategoryRepo) GetAll(limit, offset int) ([]*entity.Category, error) {
-	var categories []*entity.Category
+func (c CategoryRepo) GetById(id int) (*entity.Category, error) {
+	var category *entity.Category
 
-	err := c.db.Debug().Limit(limit).Offset(offset).Find(&categories).Error
+	err := c.db.Debug().Where("id = ?", id).First(&category).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return categories, nil
+	return category, nil
 }

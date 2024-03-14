@@ -1,8 +1,7 @@
 package model
 
 type FilterParam struct {
-	City     string `form:"city"`
-	MinPrice int    `form:"min_price"`
-	MaxPrice int    `form:"max_price"`
-	Rating   int    `form:"rating"`
+	City   string `form:"city"`
+	Price  string `form:"price"`
+	Rating string `form:"rating"`
 }

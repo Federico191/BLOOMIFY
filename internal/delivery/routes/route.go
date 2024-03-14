@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/middleware"
 )
@@ -20,26 +21,42 @@ func (r *Route) MountEndPoint() {
 	r.Router.Use(r.Middleware.CorsMiddleware())
 
 	routerGroup := r.Router.Group("/api/v1")
+
+	routerGroup.GET("/health-check", healthCheck)
+
 	routerGroup.POST("/register", r.Handler.User.Register)
 	routerGroup.POST("/login", r.Handler.User.Login)
-	routerGroup.GET("/verify_email/:code", r.Handler.User.VerifyEmail)
+	routerGroup.GET("/verify-email/:code", r.Handler.User.VerifyEmail)
 	routerGroup.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
 
 	profile := routerGroup.Group("/profile")
 	profile.POST("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.UpdatePhoto)
 
-	beautyClinic := routerGroup.Group("/beauty_clinic")
-	beautyClinic.GET("/", r.Handler.Place.GetAllBeautyClinic)
-	beautyClinic.GET("/:id", r.Handler.Place.GetAllBeautyClinic)
-	beautyClinic.GET("/review", r.Handler.Place.GetAllBeautyClinic)
+	service := routerGroup.Group("/service")
+
+	beautyClinic := service.Group("/beauty-clinic")
+	beautyClinic.GET("/search", r.Handler.Service.GetAllBeautyClinic)
+	beautyClinic.GET("/:id", r.Handler.Service.GetAllBeautyClinic)
+	beautyClinic.GET("/review", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.POST("/review", r.Middleware.JwtAuthMiddleware, r.Handler.Review.Create)
+	beautyClinic.GET("/clinic-detail/:id", r.Handler.Service.GetById)
 
-	salon := routerGroup.Group("/salon")
-	salon.GET("/", r.Handler.Place.GetAllSalon)
+	salon := service.Group("/salon")
+	salon.GET("/search", r.Handler.Service.GetAllSalon)
+	salon.GET("/salon-detail/:id", r.Handler.Service.GetById)
 
-	spaMassage := routerGroup.Group("/spa_massage")
-	spaMassage.GET("/", r.Handler.Place.GetAllSpaMassage)
+	spaMassage := service.Group("/spa-massage")
+	spaMassage.GET("/search", r.Handler.Service.GetAllSpaMassage)
+	spaMassage.GET("/spa-massage-detail/:id", r.Handler.Service.GetById)
 
-	fitnessCenter := routerGroup.Group("/fitness_center")
-	fitnessCenter.GET("/", r.Handler.Place.GetAllFitnessCenter)
+	fitnessCenter := service.Group("/fitness-center")
+	fitnessCenter.GET("/search", r.Handler.Service.GetAllFitnessCenter)
+	fitnessCenter.GET("/fitness-center-detail/:id", r.Handler.Service.GetById)
+
+}
+
+func healthCheck(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "success",
+	})
 }
