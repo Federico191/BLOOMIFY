@@ -43,8 +43,6 @@ func (r *Route) MountEndPoint() {
 	beautyClinic := service.Group("/beauty-clinic")
 	beautyClinic.GET("/search", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/:id", r.Handler.Service.GetAllBeautyClinic)
-	beautyClinic.GET("/review", r.Handler.Service.GetAllBeautyClinic)
-	beautyClinic.POST("/review", r.Middleware.JwtAuthMiddleware, r.Handler.Review.Create)
 	beautyClinic.GET("/clinic-detail/:id", r.Handler.Service.GetById)
 
 	salon := service.Group("/salon")
