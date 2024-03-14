@@ -29,8 +29,6 @@ func main() {
 
 	mysql.Migration(db)
 
-	mysql.GeneratePlaces(db)
-
 	//mysql.InitSeed(db)
 
 	repo := repository.Init(db)
