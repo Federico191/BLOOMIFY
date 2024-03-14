@@ -8,7 +8,7 @@ import (
 type ReviewRepoItf interface {
 	Create(review *entity.Review) error
 	GetAll(limit, offset int) ([]*entity.Review, error)
-	GetByRating(rating float64, limit, offset int) ([]*entity.Review, error)
+	GetById(id uint) (*entity.Review, error)
 }
 
 type ReviewRepo struct {
@@ -39,13 +39,13 @@ func (r ReviewRepo) GetAll(limit, offset int) ([]*entity.Review, error) {
 	return reviews, nil
 }
 
-func (r ReviewRepo) GetByRating(rating float64, limit, offset int) ([]*entity.Review, error) {
-	var reviews []*entity.Review
+func (r ReviewRepo) GetById(id uint) (*entity.Review, error) {
+	var review *entity.Review
 
-	err := r.db.Debug().Where("rating = ?", rating).Limit(limit).Offset(offset).Find(&reviews).Error
+	err := r.db.Debug().Where("id = ?", id).First(&review).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return reviews, nil
+	return review, nil
 }

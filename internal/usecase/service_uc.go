@@ -7,7 +7,7 @@ import (
 )
 
 type ServiceItf interface {
-	GetById(id uint) (*entity.Service, error)
+	GetById(id uint) (*model.ServiceDetailResponse, error)
 	GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 	GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 	GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
@@ -17,6 +17,8 @@ type ServiceItf interface {
 type Service struct {
 	serviceRepo  repository.ServiceRepoItf
 	categoryRepo repository.CategoryRepoItf
+	reviewRepo   repository.ReviewRepoItf
+	userRepo     repository.UserRepoItf
 }
 
 func NewService(repo repository.ServiceRepoItf, categoryRepo repository.CategoryRepoItf) ServiceItf {
@@ -56,13 +58,41 @@ func (s Service) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*mode
 	return services, nil
 }
 
-func (s Service) GetById(id uint) (*entity.Service, error) {
+func (s Service) GetById(id uint) (*model.ServiceDetailResponse, error) {
 	service, err := s.serviceRepo.GetById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return service, nil
+	var reviews []*entity.Review
+	for _, review := range service.Reviews {
+		if review.ServiceID == id {
+
+			data := &entity.Review{
+				ID:        review.ID,
+				UserID:    review.UserID,
+				User:      review.User,
+				ServiceID: review.ServiceID,
+				Rating:    review.Rating,
+				Review:    review.Review,
+				CreatedAt: review.CreatedAt,
+				UpdatedAt: review.UpdatedAt,
+			}
+			reviews = append(reviews, data)
+		}
+	}
+
+	response := &model.ServiceDetailResponse{
+		Name:        service.Name,
+		PhotoLink:   service.PhotoLink,
+		Rating:      service.AvgRating,
+		Address:     service.Place.Address,
+		Description: service.Description,
+		Price:       service.Price,
+		Review:      reviews,
+	}
+
+	return response, nil
 }
 
 func (s Service) GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {

@@ -136,11 +136,18 @@ func (s ServiceRepo) GetAllSpaMassage(filter model.FilterParam, limit, offset in
 
 func (s ServiceRepo) GetById(id uint) (*entity.Service, error) {
 	var service *entity.Service
+	var avg float64
 
-	err := s.db.Debug().Where("id = ?", id).First(&service).Error
-	if err != nil {
-		return nil, err
-	}
+	query := s.db.Debug().Preload("Place").
+		Where("services.id = ?", id).
+		Preload("Reviews").
+		First(&service)
+
+	query.Preload("User")
+
+	s.db.Debug().Model(entity.Review{}).Where("service_id = ?", id).Select("AVG(rating) as avg_rating").
+		Find(&avg)
+	service.AvgRating = avg
 
 	return service, nil
 }

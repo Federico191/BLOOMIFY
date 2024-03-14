@@ -19,7 +19,6 @@ type Service struct {
 	ServiceDate []ServiceDate
 	Reviews     []Review `gorm:"foreignKey:ServiceID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	AvgRating   float64
-	Category    string
 }
 
 type ServiceDate struct {
