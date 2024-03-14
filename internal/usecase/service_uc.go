@@ -3,53 +3,162 @@ package usecase
 import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
+	"projectIntern/model"
 )
 
 type ServiceItf interface {
-	GetAll(page int) ([]*entity.Service, error)
-	GetByTreatment(treatment string, page int) ([]*entity.Service, error)
-	GetByProblem(problem string, page int) ([]*entity.Service, error)
+	GetById(id uint) (*entity.Service, error)
+	GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
+	GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
+	GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
+	GetAllFitnessCenter(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 }
 
 type Service struct {
-	repo repository.ServiceRepoItf
+	serviceRepo  repository.ServiceRepoItf
+	categoryRepo repository.CategoryRepoItf
 }
 
-func NewService(repo repository.ServiceRepoItf) ServiceItf {
-	return &Service{repo: repo}
+func NewService(repo repository.ServiceRepoItf, categoryRepo repository.CategoryRepoItf) ServiceItf {
+	return &Service{serviceRepo: repo, categoryRepo: categoryRepo}
 }
 
-func (s Service) GetAll(page int) ([]*entity.Service, error) {
+func (s Service) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
-	services, err := s.repo.GetAll(limit, offset)
+	beautyClinics, err := s.serviceRepo.GetAllBeautyClinic(filter, limit, offset)
 	if err != nil {
 		return nil, err
+	}
+
+	var services []*model.ServiceResponse
+	for _, beautyClinic := range beautyClinics {
+		category, err := s.categoryRepo.GetById(beautyClinic.Place.CategoryId)
+		if err != nil {
+			return nil, err
+		}
+
+		service := &model.ServiceResponse{
+			ServiceId: beautyClinic.ID,
+			Name:      beautyClinic.Name,
+			PhotoLink: beautyClinic.PhotoLink,
+			Rating:    beautyClinic.AvgRating,
+			Address:   beautyClinic.Place.Address,
+			Category:  category.Name,
+			Price:     beautyClinic.Price,
+			Hour:      beautyClinic.Place.Hour,
+		}
+
+		services = append(services, service)
 	}
 
 	return services, nil
 }
 
-func (s Service) GetByTreatment(treatment string, page int) ([]*entity.Service, error) {
+func (s Service) GetById(id uint) (*entity.Service, error) {
+	service, err := s.serviceRepo.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return service, nil
+}
+
+func (s Service) GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
-	services, err := s.repo.GetByTreatment(treatment, limit, offset)
+	spaMassages, err := s.serviceRepo.GetAllFitnessCenter(filter, limit, offset)
 	if err != nil {
 		return nil, err
+	}
+
+	var services []*model.ServiceResponse
+	for _, spaMassage := range spaMassages {
+		category, err := s.categoryRepo.GetById(spaMassage.Place.CategoryId)
+		if err != nil {
+			return nil, err
+		}
+
+		service := &model.ServiceResponse{
+			ServiceId: spaMassage.ID,
+			Name:      spaMassage.Name,
+			PhotoLink: spaMassage.PhotoLink,
+			Rating:    spaMassage.AvgRating,
+			Address:   spaMassage.Place.Address,
+			Category:  category.Name,
+			Price:     spaMassage.Price,
+			Hour:      spaMassage.Place.Hour,
+		}
+
+		services = append(services, service)
 	}
 
 	return services, nil
 }
 
-func (s Service) GetByProblem(problem string, page int) ([]*entity.Service, error) {
+func (s Service) GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
-	services, err := s.repo.GetByTreatment(problem, limit, offset)
+	salons, err := s.serviceRepo.GetAllSalon(filter, limit, offset)
 	if err != nil {
 		return nil, err
+	}
+
+	var services []*model.ServiceResponse
+	for _, salon := range salons {
+		category, err := s.categoryRepo.GetById(salon.Place.CategoryId)
+		if err != nil {
+			return nil, err
+		}
+
+		service := &model.ServiceResponse{
+			ServiceId: salon.ID,
+			Name:      salon.Name,
+			PhotoLink: salon.PhotoLink,
+			Rating:    salon.AvgRating,
+			Address:   salon.Place.Address,
+			Category:  category.Name,
+			Price:     salon.Price,
+			Hour:      salon.Place.Hour,
+		}
+
+		services = append(services, service)
+	}
+
+	return services, nil
+}
+
+func (s Service) GetAllFitnessCenter(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
+	limit := 5
+	offset := (page - 1) * limit
+
+	fitnessCenters, err := s.serviceRepo.GetAllFitnessCenter(filter, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	var services []*model.ServiceResponse
+	for _, fitnessCenter := range fitnessCenters {
+		category, err := s.categoryRepo.GetById(fitnessCenter.Place.CategoryId)
+		if err != nil {
+			return nil, err
+		}
+
+		service := &model.ServiceResponse{
+			ServiceId: fitnessCenter.ID,
+			Name:      fitnessCenter.Name,
+			PhotoLink: fitnessCenter.PhotoLink,
+			Rating:    fitnessCenter.AvgRating,
+			Address:   fitnessCenter.Place.Address,
+			Category:  category.Name,
+			Price:     fitnessCenter.Price,
+			Hour:      fitnessCenter.Place.Hour,
+		}
+
+		services = append(services, service)
 	}
 
 	return services, nil

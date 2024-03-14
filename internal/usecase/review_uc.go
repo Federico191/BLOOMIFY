@@ -18,10 +18,10 @@ type ReviewUC struct {
 
 func (r ReviewUC) Create(req model.ReviewRequest) (*entity.Review, error) {
 	review := &entity.Review{
-		UserID:  req.UserId,
-		PlaceID: req.PlaceId,
-		Rating:  req.Rating,
-		Review:  req.Review,
+		UserID:    req.UserId,
+		ServiceID: req.ServiceId,
+		Rating:    req.Rating,
+		Review:    req.Review,
 	}
 
 	err := r.repo.Create(review)

@@ -11,11 +11,11 @@ import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
 	"projectIntern/model"
-	"projectIntern/pkg"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/email"
 	"projectIntern/pkg/encode"
 	"projectIntern/pkg/jwt"
+	"projectIntern/pkg/supabase"
 )
 
 type UserUCItf interface {
@@ -31,7 +31,7 @@ type UserUC struct {
 	userRepo repository.UserRepoItf
 	token    jwt.JWTMakerItf
 	email    email.EmailItf
-	supabase pkg.SupabaseStorageItf
+	supabase supabase.SupabaseStorageItf
 }
 
 func (u UserUC) UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error {
@@ -57,7 +57,7 @@ func (u UserUC) UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error
 	return nil
 }
 
-func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf, supabase pkg.SupabaseStorageItf) UserUCItf {
+func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.EmailItf, supabase supabase.SupabaseStorageItf) UserUCItf {
 	return &UserUC{userRepo: repo, token: token, email: email, supabase: supabase}
 }
 
