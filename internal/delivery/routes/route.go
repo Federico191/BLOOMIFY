@@ -1,9 +1,12 @@
 package routes
 
 import (
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"os"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/middleware"
 )
@@ -63,4 +66,13 @@ func healthCheck(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
+}
+
+func (r *Route) Serve() {
+	port := os.Getenv("PORT")
+
+	err := r.Router.Run(fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("Error while serving: %v", err)
+	}
 }
