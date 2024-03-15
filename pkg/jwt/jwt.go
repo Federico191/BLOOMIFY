@@ -6,8 +6,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"log"
+	"os"
 	"projectIntern/internal/entity"
-	"projectIntern/pkg/config"
 	"strconv"
 	"time"
 )
@@ -19,7 +19,6 @@ type JWTMakerItf interface {
 }
 
 type JWTMaker struct {
-	env *config.Env
 }
 
 func (j JWTMaker) GetLoginUser(ctx *gin.Context) (*entity.User, error) {
@@ -36,12 +35,12 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func NewJWT(env *config.Env) JWTMakerItf {
-	return JWTMaker{env: env}
+func NewJWT() JWTMakerItf {
+	return JWTMaker{}
 }
 
 func (j JWTMaker) CreateToken(id uuid.UUID) (string, error) {
-	expired, err := strconv.Atoi(j.env.ExpiredToken)
+	expired, err := strconv.Atoi(os.Getenv("EXPIRED_TOKEN"))
 	if err != nil {
 		log.Fatalf("cannot converse expired")
 	}
@@ -54,7 +53,7 @@ func (j JWTMaker) CreateToken(id uuid.UUID) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(j.env.SecretToken))
+	signedToken, err := token.SignedString([]byte(os.Getenv("SECRET_TOKEN")))
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +68,7 @@ func (j JWTMaker) VerifyToken(tokenString string) (uuid.UUID, error) {
 	)
 
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(j.env.SecretToken), nil
+		return []byte(os.Getenv("SECRET_TOKEN")), nil
 	})
 
 	if err != nil {

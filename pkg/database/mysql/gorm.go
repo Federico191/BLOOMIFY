@@ -5,15 +5,15 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
-	"projectIntern/pkg/config"
+	"os"
 )
 
-func DBInit(env *config.Env) (*gorm.DB, error) {
-	username := env.DBUsername
-	password := env.DBPassword
-	host := env.DBHost
-	port := env.DBPort
-	database := env.DBName
+func DBInit() (*gorm.DB, error) {
+	username := os.Getenv("DATABASE_USERNAME")
+	password := os.Getenv("DATABASE_PASSWORD")
+	host := os.Getenv("DATABASE_HOST")
+	port := os.Getenv("DATABASE_PORT")
+	database := os.Getenv("DATABASE_NAME")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, database)
 	fmt.Println(dsn)

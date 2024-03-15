@@ -3,8 +3,8 @@ package email
 import (
 	"fmt"
 	"gopkg.in/gomail.v2"
+	"os"
 	"projectIntern/internal/entity"
-	"projectIntern/pkg/config"
 	"strconv"
 )
 
@@ -15,15 +15,14 @@ type EmailItf interface {
 }
 
 type Email struct {
-	env *config.Env
 }
 
-func NewEmail(env *config.Env) EmailItf {
-	return &Email{env: env}
+func NewEmail() EmailItf {
+	return &Email{}
 }
 
 func (e Email) SendEmailVerification(user *entity.User, verificationCode string) error {
-	url := "http://" + e.env.AHost + e.env.APort + "/api/v1" + "/" + "verify_email" + "/" + verificationCode
+	url := "http://" + os.Getenv("APP_HOST") + os.Getenv("APP_PORT") + "/api/v1" + "/" + "verify-email" + "/" + verificationCode
 
 	textString := fmt.Sprintf(`
     <html>
@@ -75,17 +74,17 @@ func (e Email) SendEmailVerification(user *entity.User, verificationCode string)
 		appName, user.FullName, appName, url, appName, appName)
 
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", e.env.EmailFrom)
+	mailer.SetHeader("From", os.Getenv("EMAIL_FROM"))
 	mailer.SetHeader("To", user.Email)
 	mailer.SetHeader("Subject", "Your email verification")
 	mailer.SetBody("text/html", textString)
 
-	port, err := strconv.Atoi(e.env.SMTPPort)
+	port, err := strconv.Atoi(os.Getenv("SMTP_PORT"))
 	if err != nil {
 		return err
 	}
 
-	dialer := gomail.NewDialer(e.env.SMTPHost, port, e.env.SMTPUser, e.env.SMTPPassword)
+	dialer := gomail.NewDialer(os.Getenv("SMTP_HOST"), port, os.Getenv("SMTP_USER"), os.Getenv("SMTP_PASSWORD"))
 
 	err = dialer.DialAndSend(mailer)
 	if err != nil {

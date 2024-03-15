@@ -11,7 +11,6 @@ import (
 	"projectIntern/internal/delivery/routes"
 	"projectIntern/internal/repository"
 	"projectIntern/internal/usecase"
-	"projectIntern/pkg/config"
 	"projectIntern/pkg/database/mysql"
 	"projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
@@ -25,12 +24,7 @@ func main() {
 		log.Fatalf("cannot load env:%v", err)
 	}
 
-	env, err := config.NewEnv("../")
-	if err != nil && env == nil {
-		log.Fatalf("cannot load env: %v", err)
-	}
-
-	db, err := mysql.DBInit(env)
+	db, err := mysql.DBInit()
 	if err != nil {
 		log.Fatalf("cannot initialize DB: %v", err)
 	}
@@ -41,13 +35,13 @@ func main() {
 
 	repo := repository.Init(db)
 
-	client := supabasestorageuploader.New(env.SupabaseUrl, env.SupabaseKey, env.SupabaseBucket)
+	client := supabasestorageuploader.New(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_KEY"), os.Getenv("SUPABASE_BUCKET"))
 
 	spbs := supabase.NewSupabaseStorage(client)
 
-	jwtAuth := jwt.NewJWT(env)
+	jwtAuth := jwt.NewJWT()
 
-	emailVerify := email.NewEmail(env)
+	emailVerify := email.NewEmail()
 
 	uc := usecase.Init(repo, jwtAuth, emailVerify, spbs)
 
@@ -61,7 +55,7 @@ func main() {
 
 	route.MountEndPoint()
 
-	err = router.Run(env.APort)
+	err = router.Run(os.Getenv("APP_PORT"))
 	if err != nil {
 		log.Fatalf("cannot run localhost: %v", err)
 	}
