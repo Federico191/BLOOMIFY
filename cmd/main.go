@@ -53,7 +53,7 @@ func main() {
 
 	route.MountEndPoint()
 
-	err = router.Run(os.Getenv("PORT"))
+	err = router.Run(":" + os.Getenv("PORT"))
 	if err != nil {
 		log.Fatalf("cannot run localhost: %v", err)
 	}
