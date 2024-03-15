@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("../app.env")
+	err := godotenv.Load("../.env")
 	envi := os.Getenv("ENV")
 	if err != nil && envi == "" {
 		log.Fatalf("cannot load env:%v", err)
@@ -30,8 +30,6 @@ func main() {
 	}
 
 	mysql.Migration(db)
-
-	//mysql.InitSeed(db)
 
 	repo := repository.Init(db)
 
@@ -55,7 +53,7 @@ func main() {
 
 	route.MountEndPoint()
 
-	err = router.Run(os.Getenv("APP_PORT"))
+	err = router.Run(os.Getenv("PORT"))
 	if err != nil {
 		log.Fatalf("cannot run localhost: %v", err)
 	}
