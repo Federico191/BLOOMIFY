@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"context"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
 	"projectIntern/model"
+	"time"
 )
 
 type ServiceRepoItf interface {
@@ -47,7 +49,10 @@ func (s ServiceRepo) GetAll() ([]*entity.Service, error) {
 
 func (s ServiceRepo) GetAllBeautyClinic(filter model.FilterParam, limit, offset int) ([]*entity.Service, error) {
 	var services []*entity.Service
-	query := s.db.Debug().
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	query := s.db.WithContext(ctx).Debug().
 		Preload("Place").
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 1, "%"+filter.City+"%").
@@ -90,8 +95,10 @@ func (s ServiceRepo) GetAllBeautyClinic(filter model.FilterParam, limit, offset 
 
 func (s ServiceRepo) GetAllSpaMassage(filter model.FilterParam, limit, offset int) ([]*entity.Service, error) {
 	var services []*entity.Service
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	query := s.db.Debug().
+	query := s.db.WithContext(ctx).Debug().
 		Preload("Place").
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 2, "%"+filter.City+"%").
@@ -143,7 +150,7 @@ func (s ServiceRepo) GetById(id uint) (*entity.Service, error) {
 		Preload("Reviews").
 		First(&service)
 
-	query.Preload("User")
+	query.Preload("Reviews.User")
 
 	s.db.Debug().Model(entity.Review{}).Where("service_id = ?", id).Select("AVG(rating) as avg_rating").
 		Find(&avg)
@@ -154,13 +161,12 @@ func (s ServiceRepo) GetById(id uint) (*entity.Service, error) {
 
 func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([]*entity.Service, error) {
 	var services []*entity.Service
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	query := s.db.Debug().
-		Preload("Place").
+	query := s.db.WithContext(ctx).Debug().
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 3, "%"+filter.City+"%").
-		Preload("Problem").
-		Preload("Reviews").
 		Joins("JOIN reviews ON reviews.service_id = services.id").
 		Group("services.id").
 		Select("services.*", "COALESCE(AVG(reviews.rating), 0) as avg_rating").
@@ -200,8 +206,10 @@ func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([
 
 func (s ServiceRepo) GetAllFitnessCenter(filter model.FilterParam, limit, offset int) ([]*entity.Service, error) {
 	var services []*entity.Service
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	query := s.db.Debug().
+	query := s.db.WithContext(ctx).Debug().
 		Preload("Place").
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 4, "%"+filter.City+"%").

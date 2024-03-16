@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"context"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
+	"time"
 )
 
 type ReviewRepoItf interface {
@@ -30,8 +32,10 @@ func (r ReviewRepo) Create(review *entity.Review) error {
 
 func (r ReviewRepo) GetAll(limit, offset int) ([]*entity.Review, error) {
 	var reviews []*entity.Review
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	err := r.db.Debug().Limit(limit).Offset(offset).Find(&reviews).Error
+	err := r.db.WithContext(ctx).Debug().Limit(limit).Offset(offset).Find(&reviews).Error
 	if err != nil {
 		return nil, err
 	}

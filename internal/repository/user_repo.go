@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
 	"projectIntern/model"
+	"time"
 )
 
 type UserRepoItf interface {
@@ -24,7 +26,10 @@ func NewUserRepo(db *gorm.DB) UserRepoItf {
 }
 
 func (u UserRepository) Create(user *entity.User) error {
-	err := u.db.Create(user).Error
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	err := u.db.WithContext(ctx).Create(user).Error
 	if err != nil {
 		return err
 	}
@@ -34,8 +39,10 @@ func (u UserRepository) Create(user *entity.User) error {
 
 func (u UserRepository) GetByEmail(email string) (*entity.User, error) {
 	var user *entity.User
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	err := u.db.Where("email = ?", email).First(&user).Error
+	err := u.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +52,10 @@ func (u UserRepository) GetByEmail(email string) (*entity.User, error) {
 
 func (u UserRepository) GetByVerificationCode(code string) (*entity.User, error) {
 	var user *entity.User
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	err := u.db.Debug().Where("verification_code = ?", code).First(&user).Error
+	err := u.db.WithContext(ctx).Debug().Where("verification_code = ?", code).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +65,10 @@ func (u UserRepository) GetByVerificationCode(code string) (*entity.User, error)
 
 func (u UserRepository) GetById(id uuid.UUID) (*entity.User, error) {
 	var user *entity.User
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	err := u.db.Debug().Where("id = ?", id).First(&user).Error
+	err := u.db.WithContext(ctx).Debug().Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
