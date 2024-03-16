@@ -74,8 +74,8 @@ func (e Email) SendEmailVerification(user *entity.User, verificationCode string)
 		appName, user.FullName, appName, url, appName, appName)
 
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", os.Getenv("EMAIL_FROM"))
-	mailer.SetHeader("To", user.Email)
+	mailer.SetHeader("From", "bloomify20@gmail.com")
+	mailer.SetHeader("To", fmt.Sprintf("<%s>", user.Email))
 	mailer.SetHeader("Subject", "Your email verification")
 	mailer.SetBody("text/html", textString)
 
