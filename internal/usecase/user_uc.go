@@ -131,6 +131,7 @@ func (u UserUC) Login(req *model.UserLogin) (string, error) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	log.Println("sebelum compare password")
+	log.Println(err)
 	if err != nil {
 		log.Println("sesudah compare password", err)
 		return "", customerrors.ErrPasswordInvalid
