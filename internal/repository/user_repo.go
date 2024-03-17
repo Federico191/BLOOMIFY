@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"projectIntern/internal/entity"
 	"projectIntern/model"
 	"time"
@@ -42,7 +43,9 @@ func (u UserRepository) GetByEmail(email string) (*entity.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	log.Println("sebelum get email repo")
 	err := u.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	log.Println("sesudah get email repo", err)
 	if err != nil {
 		return nil, err
 	}

@@ -23,7 +23,7 @@ type UserUCItf interface {
 	Login(req *model.UserLogin) (string, error)
 	GetByVerificationCode(code string) (*entity.User, error)
 	VerifyEmail(id uuid.UUID) error
-	GetById(id uuid.UUID) (*entity.User, error)
+	GetById(id uuid.UUID) (*model.UserResponse, error)
 	UpdatePhoto(ctx *gin.Context, param model.UserUploadPhoto) error
 }
 
@@ -61,13 +61,20 @@ func NewUseUC(repo repository.UserRepoItf, token jwt.JWTMakerItf, email email.Em
 	return &UserUC{userRepo: repo, token: token, email: email, supabase: supabase}
 }
 
-func (u UserUC) GetById(id uuid.UUID) (*entity.User, error) {
+func (u UserUC) GetById(id uuid.UUID) (*model.UserResponse, error) {
 	user, err := u.userRepo.GetById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	userResponse := &model.UserResponse{
+		ID:       user.ID,
+		Email:    user.Email,
+		FullName: user.FullName,
+		Avatar:   user.PhotoLink,
+	}
+
+	return userResponse, nil
 }
 
 func (u UserUC) Register(req *model.UserRegister) (*model.UserResponse, error) {
@@ -98,24 +105,24 @@ func (u UserUC) Register(req *model.UserRegister) (*model.UserResponse, error) {
 
 	err = u.email.SendEmailVerification(user, code)
 	if err != nil {
-		log.Println(err)
+		log.Println("=======================\n", err, "\n2================================")
 		return nil, err
 	}
 
 	userResponse := &model.UserResponse{
-		ID:        user.ID,
-		Email:     user.Email,
-		FullName:  user.FullName,
-		Avatar:    user.PhotoLink,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:       user.ID,
+		Email:    user.Email,
+		FullName: user.FullName,
+		Avatar:   user.PhotoLink,
 	}
 	return userResponse, nil
 }
 
 func (u UserUC) Login(req *model.UserLogin) (string, error) {
 	user, err := u.userRepo.GetByEmail(req.Email)
+	log.Println("sebelum get email")
 	if err != nil {
+		log.Println("sesudah get email", err)
 		if user == nil {
 			return "", customerrors.ErrEmailInvalid
 		}
@@ -123,7 +130,9 @@ func (u UserUC) Login(req *model.UserLogin) (string, error) {
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	log.Println("sebelum compare password")
 	if err != nil {
+		log.Println("sesudah compare password", err)
 		return "", customerrors.ErrPasswordInvalid
 	}
 
@@ -132,7 +141,9 @@ func (u UserUC) Login(req *model.UserLogin) (string, error) {
 	}
 
 	createdToken, err := u.token.CreateToken(user.ID)
+	log.Println("sebelum token")
 	if err != nil {
+		log.Println("sesudah token", err)
 		return "", err
 	}
 	return createdToken, nil
