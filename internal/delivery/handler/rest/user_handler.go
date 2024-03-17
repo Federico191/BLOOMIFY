@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"projectIntern/internal/usecase"
 	"projectIntern/model"
@@ -46,20 +47,27 @@ func (a UserHandler) Register(c *gin.Context) {
 func (a UserHandler) Login(c *gin.Context) {
 	var req model.UserLogin
 
+	log.Println("sebelum bind")
 	if err := c.ShouldBind(&req); err != nil {
+		log.Println("sesudah", err)
 		response.Error(c, http.StatusBadRequest, "Failed to bind request", err)
 		return
 	}
 
+	log.Println("sebelum token")
 	token, err := a.userUC.Login(&req)
 	if err != nil {
+		log.Println("sesudah", err)
 		if errors.Is(err, customerrors.ErrEmailInvalid) || errors.Is(err, customerrors.ErrPasswordInvalid) {
+			log.Println("sesudah", err)
 			response.Error(c, http.StatusUnauthorized, "failed to log in", err)
 			return
 		} else if errors.Is(err, customerrors.ErrNotVerified) {
+			log.Println("sesudah", err)
 			response.Error(c, http.StatusForbidden, "failed to log in", err)
 			return
 		}
+		log.Println("sesudah", err)
 		response.Error(c, http.StatusInternalServerError, "Failed to log in", err)
 		return
 	}

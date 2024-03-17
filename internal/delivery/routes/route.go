@@ -33,10 +33,12 @@ func (r *Route) MountEndPoint() {
 
 	routerGroup.GET("/health-check", healthCheck)
 
-	routerGroup.POST("/register", r.Handler.User.Register)
-	routerGroup.POST("/login", r.Handler.User.Login)
-	routerGroup.GET("/verify-email/:code", r.Handler.User.VerifyEmail)
-	routerGroup.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
+	user := routerGroup.Group("/user")
+
+	user.POST("/register", r.Handler.User.Register)
+	user.POST("/login", r.Handler.User.Login)
+	user.GET("/verify-email/:code", r.Handler.User.VerifyEmail)
+	user.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
 
 	profile := routerGroup.Group("/profile")
 	profile.POST("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.UpdatePhoto)
@@ -47,6 +49,7 @@ func (r *Route) MountEndPoint() {
 	beautyClinic.GET("/search", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/:id", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/clinic-detail/:id", r.Handler.Service.GetById)
+	beautyClinic.POST("/clinic-detail/booking", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.Create)
 
 	salon := service.Group("/salon")
 	salon.GET("/search", r.Handler.Service.GetAllSalon)
