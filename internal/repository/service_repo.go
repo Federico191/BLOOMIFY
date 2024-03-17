@@ -165,6 +165,7 @@ func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([
 	defer cancel()
 
 	query := s.db.WithContext(ctx).Debug().
+		Preload("Place").
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 3, "%"+filter.City+"%").
 		Joins("JOIN reviews ON reviews.service_id = services.id").
