@@ -49,7 +49,7 @@ func (r *Route) MountEndPoint() {
 	beautyClinic.GET("/search", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/:id", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/clinic-detail/:id", r.Handler.Service.GetById)
-	beautyClinic.POST("/clinic-detail/booking", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.Create)
+	//beautyClinic.POST("/clinic-detail/booking", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.Create)
 
 	salon := service.Group("/salon")
 	salon.GET("/search", r.Handler.Service.GetAllSalon)
