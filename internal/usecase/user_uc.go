@@ -141,10 +141,11 @@ func (u UserUC) Login(req *model.UserLogin) (string, error) {
 		return "", customerrors.ErrNotVerified
 	}
 
-	createdToken, err := u.token.CreateToken(user.ID)
 	log.Println("sebelum token")
+	createdToken, err := u.token.CreateToken(user.ID)
+	log.Println("sesudah token", err)
 	if err != nil {
-		log.Println("sesudah token", err)
+		log.Println("error token", err)
 		return "", err
 	}
 	return createdToken, nil
