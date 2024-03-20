@@ -22,7 +22,7 @@ func NewEmail() EmailItf {
 }
 
 func (e Email) SendEmailVerification(user *entity.User, verificationCode string) error {
-	url := os.Getenv("URL") + "/api/v1" + "/" + "verify-email" + "/" + verificationCode
+	url := "https://bloomify2-cc614ecf7708.herokuapp.com" + "/api/v1" + "/" + "verify-email" + "/" + verificationCode
 
 	textString := fmt.Sprintf(`
     <html>
