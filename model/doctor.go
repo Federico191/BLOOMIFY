@@ -7,6 +7,7 @@ type DoctorResponse struct {
 	DoctorName   string    `json:"doctor_name"`
 	Profession   string    `json:"profession"`
 	Age          int       `json:"age"`
+	City         string    `json:"city"`
 	PhotoLink    string    `json:"photo_link"`
 	Price        int       `json:"price"`
 	Rating       float64   `json:"rating"`
@@ -20,6 +21,7 @@ type DoctorDetailResponse struct {
 	DoctorName   string    `json:"doctor_name"`
 	Profession   string    `json:"profession"`
 	Age          int       `json:"age"`
+	City         string    `json:"city"`
 	Price        int       `json:"price"`
 	Rating       float64   `json:"rating"`
 	PhotoLink    string    `json:"photo_link"`
