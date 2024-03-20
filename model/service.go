@@ -1,7 +1,5 @@
 package model
 
-import "projectIntern/internal/entity"
-
 type ServiceResponse struct {
 	ServiceId uint    `json:"service_id"`
 	Name      string  `json:"name"`
@@ -14,11 +12,13 @@ type ServiceResponse struct {
 }
 
 type ServiceDetailResponse struct {
-	Name        string           `json:"name"`
-	PhotoLink   string           `json:"photo_link"`
-	Rating      float64          `json:"rating"`
-	Address     string           `json:"address"`
-	Description string           `json:"description"`
-	Price       int              `json:"price"`
-	Review      []*entity.Review `json:"review"`
+	Name         string  `json:"name"`
+	PhotoLink    string  `json:"photo_link"`
+	Rating       float64 `json:"rating"`
+	Address      string  `json:"address"`
+	Description  string  `json:"description"`
+	Price        int     `json:"price"`
+	ReviewerName string  `json:"reviewer_name"`
+	Review       string  `json:"review"`
+	ReviewRating int     `json:"review_rating"`
 }
