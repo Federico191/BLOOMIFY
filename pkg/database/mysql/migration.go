@@ -9,13 +9,15 @@ import (
 func Migration(db *gorm.DB) {
 	err := db.AutoMigrate(entity.User{},
 		entity.Category{},
-		entity.Payment{},
-		entity.Booking{},
+		entity.Profession{},
+		entity.Doctor{},
+		entity.BookingDoctor{},
+		entity.BookingTreatment{},
 		entity.Problem{},
 		entity.Place{},
 		entity.Service{},
-		entity.Review{},
-		entity.ServiceDate{},
+		entity.TreatmentReview{},
+		entity.DoctorReview{},
 		entity.Product{},
 	)
 	if err != nil {

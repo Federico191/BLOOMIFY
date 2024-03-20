@@ -15,9 +15,11 @@ func DBInit() (*gorm.DB, error) {
 	port := os.Getenv("DATABASE_PORT")
 	database := os.Getenv("DATABASE_NAME")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, database)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		username, password, host, port, database)
 	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn))
+
 	if err != nil {
 		log.Fatal("cannot connect to database", err)
 	}
