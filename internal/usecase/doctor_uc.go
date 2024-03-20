@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	"projectIntern/internal/repository"
 	"projectIntern/model"
+	"time"
 )
 
 type DoctorUCItf interface {
@@ -31,9 +32,11 @@ func (d DoctorUC) GetAll(filter model.FilterParam, page int) ([]*model.DoctorRes
 	var responses []*model.DoctorResponse
 	for _, doctor := range doctors {
 		response := &model.DoctorResponse{
-			DocterID:     doctor.ID,
+			DoctorID:     doctor.ID,
 			DoctorName:   doctor.Name,
 			Profession:   doctor.Profession.Name,
+			Age:          calculateAge(doctor.BirthDate),
+			PhotoLink:    doctor.PhotoLink,
 			Price:        doctor.Price,
 			Rating:       doctor.Rating,
 			Alumnus:      doctor.Alumnus,
@@ -54,15 +57,28 @@ func (d DoctorUC) GetById(id uuid.UUID) (*model.DoctorDetailResponse, error) {
 	}
 
 	response := &model.DoctorDetailResponse{
-		DocterId:     doctor.ID,
+		DoctorId:     doctor.ID,
 		DoctorName:   doctor.Name,
 		Profession:   doctor.Profession.Name,
 		Price:        doctor.Price,
+		Age:          calculateAge(doctor.BirthDate),
 		Rating:       doctor.Rating,
+		PhotoLink:    doctor.PhotoLink,
 		ReviewerName: doctor.Reviews[0].User.FullName,
 		Review:       doctor.Reviews[0].Review,
 		ReviewRating: doctor.Reviews[0].Rating,
 	}
 
 	return response, nil
+}
+
+func calculateAge(birthDate time.Time) int {
+	now := time.Now()
+	years := now.Year() - birthDate.Year()
+
+	if now.Month() < birthDate.Month() || (now.Month() == birthDate.Month() && now.Day() < birthDate.Day()) {
+		years--
+	}
+
+	return years
 }

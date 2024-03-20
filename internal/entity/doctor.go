@@ -12,6 +12,7 @@ type Doctor struct {
 	ProfessionId uint           `gorm:"foreignKey:ID"`
 	Profession   Profession     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	STRNumber    string         `gorm:"size:100;not null;unique"`
+	BirthDate    time.Time      `gorm:"type:date;not null"`
 	Alumnus      string         `gorm:"size:100;not null"`
 	PracticeSite string         `gorm:"size:100;not null"`
 	City         string         `gorm:"size:100;not null"`
