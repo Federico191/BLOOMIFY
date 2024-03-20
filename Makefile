@@ -1,4 +1,4 @@
-include app.env
+include .env
 
 dockerRun :
 	docker run --name mysqlIntern -p ${DATABASE_PORT}:${DATABASE_PORT} -e MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD} -d mysql:8.2
