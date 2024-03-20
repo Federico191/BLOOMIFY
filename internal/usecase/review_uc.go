@@ -3,35 +3,21 @@ package usecase
 import (
 	"projectIntern/internal/entity"
 	"projectIntern/internal/repository"
-	"projectIntern/model"
 )
 
-type ReviewUCItf interface {
-	Create(req model.ReviewRequest) (*entity.Review, error)
-	GetAll(page int) ([]*entity.Review, error)
+type TreatmentReviewUCItf interface {
+	GetAll(page int) ([]*entity.TreatmentReview, error)
 }
 
 type ReviewUC struct {
-	repo repository.ReviewRepoItf
+	repo repository.TreatmentReviewRepoItf
 }
 
-func (r ReviewUC) Create(req model.ReviewRequest) (*entity.Review, error) {
-	review := &entity.Review{
-		UserID:    req.UserId,
-		ServiceID: req.ServiceId,
-		Rating:    req.Rating,
-		Review:    req.Review,
-	}
-
-	err := r.repo.Create(review)
-	if err != nil {
-		return nil, err
-	}
-
-	return review, nil
+func NewReviewUC(repo repository.TreatmentReviewRepoItf) TreatmentReviewUCItf {
+	return &ReviewUC{repo: repo}
 }
 
-func (r ReviewUC) GetAll(page int) ([]*entity.Review, error) {
+func (r ReviewUC) GetAll(page int) ([]*entity.TreatmentReview, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
@@ -42,8 +28,4 @@ func (r ReviewUC) GetAll(page int) ([]*entity.Review, error) {
 
 	return reviews, nil
 
-}
-
-func NewReviewUC(repo repository.ReviewRepoItf) ReviewUCItf {
-	return &ReviewUC{repo: repo}
 }
