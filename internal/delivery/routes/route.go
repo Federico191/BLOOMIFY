@@ -44,12 +44,19 @@ func (r *Route) MountEndPoint() {
 	profile.POST("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.UpdatePhoto)
 
 	service := routerGroup.Group("/service")
+	service.POST("/treatment/booking/", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.CreateBookingTreatment)
+	service.POST("/doctor/booking/", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.CreateBookingDoctor)
+	service.GET("/booking/get-status/:id", r.Handler.Booking.GetByStatus)
+	service.POST("/payment/update", r.Handler.Booking.Update)
 
 	beautyClinic := service.Group("/beauty-clinic")
 	beautyClinic.GET("/search", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/:id", r.Handler.Service.GetAllBeautyClinic)
 	beautyClinic.GET("/clinic-detail/:id", r.Handler.Service.GetById)
-	//beautyClinic.POST("/clinic-detail/booking", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.Create)
+
+	doctor := service.Group("/doctor")
+	doctor.GET("/search", r.Handler.Doctor.GetAll)
+	doctor.GET("/doctor-detail/:id", r.Handler.Doctor.GetById)
 
 	salon := service.Group("/salon")
 	salon.GET("/search", r.Handler.Service.GetAllSalon)
