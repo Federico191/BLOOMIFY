@@ -51,7 +51,7 @@ func (b BookingTreatmentUC) Create(id uuid.UUID, req model.BookingTreatmentReque
 
 	bookingId := uuid.NewString()
 
-	transaction, err := b.mdtrans.CreateTransaction(*service, req.PaymentMethod, bookingId, int64(service.Price), *user)
+	transaction, err := b.mdtrans.CreateTransactionService(*service, req.PaymentMethod, bookingId, int64(service.Price), *user)
 	if err != nil {
 		return nil, err
 	}
