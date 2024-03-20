@@ -1,90 +1,110 @@
 package midtrans
 
-//
-//import (
-//	"github.com/gin-gonic/gin"
-//	"github.com/midtrans/midtrans-go"
-//	"github.com/midtrans/midtrans-go/coreapi"
-//	"net/http"
-//	"os"
-//	"projectIntern/internal/entity"
-//	"projectIntern/pkg/response"
-//	"strconv"
-//)
-//
-//type MidTransItf interface {
-//	CreateTransaction(service entity.Service, booking entity.Booking, user entity.User) (*coreapi.ChargeResponse, error)
-//	CheckTransactionStatus(ctx *gin.Context)
-//}
-//
-//type MidTrans struct {
-//	client coreapi.Client
-//}
-//
-//func NewMidtrans(client coreapi.Client) MidTransItf {
-//	return &MidTrans{client: client}
-//}
-//
-//func (m MidTrans) CreateTransaction(service entity.Service, booking entity.Booking, user entity.User) (*coreapi.ChargeResponse, error) {
-//	m.client.New(os.Getenv("SERVER_KEY"), midtrans.Sandbox)
-//
-//	chargeReq := &coreapi.ChargeReq{
-//		PaymentType: coreapi.PaymentTypeBankTransfer,
-//		TransactionDetails: midtrans.TransactionDetails{
-//			//OrderID:  booking.ID,
-//			GrossAmt: int64(booking.GrossAmount),
-//		},
-//		Items: &[]midtrans.ItemDetails{
-//			midtrans.ItemDetails{
-//				ID:    strconv.Itoa(int(service.ID)),
-//				Name:  service.Name,
-//				Price: int64(service.Price),
-//				Qty:   1,
-//			},
-//		},
-//		CustomerDetails: &midtrans.CustomerDetails{
-//			FName: user.FullName,
-//			Email: user.Email,
-//		},
-//		BankTransfer: &coreapi.BankTransferDetails{
-//			Bank: midtrans.BankBca,
-//		},
-//	}
-//
-//	resp, _ := m.client.ChargeTransaction(chargeReq)
-//
-//	return resp, nil
-//}
-//
-//func (m MidTrans) CheckTransactionStatus(ctx *gin.Context) {
-//	// 4. Check transaction to Midtrans with param orderId
-//
-//	transactionStatusResp, err := m.client.CheckTransaction("s")
-//	if err != nil {
-//		response.Error(ctx, http.StatusInternalServerError, "failed to get transaction status", err)
-//		return
-//	} else {
-//		if transactionStatusResp != nil {
-//			if transactionStatusResp.TransactionStatus == "capture" {
-//				if transactionStatusResp.FraudStatus == "challenge" {
-//					// TODO set transaction status on your database to 'challenge'
-//					// e.g: 'Payment status challenged. Please take action on your Merchant Administration Portal
-//				} else if transactionStatusResp.FraudStatus == "accept" {
-//					// TODO set transaction status on your database to 'success'
-//				}
-//			} else if transactionStatusResp.TransactionStatus == "settlement" {
-//				// TODO set transaction status on your databaase to 'success'
-//			} else if transactionStatusResp.TransactionStatus == "deny" {
-//				// TODO you can ignore 'deny', because most of the time it allows payment retries
-//				// and later can become success
-//			} else if transactionStatusResp.TransactionStatus == "cancel" || transactionStatusResp.TransactionStatus == "expire" {
-//				// TODO set transaction status on your databaase to 'failure'
-//			} else if transactionStatusResp.TransactionStatus == "pending" {
-//				// TODO set transaction status on your databaase to 'pending' / waiting payment
-//			}
-//		}
-//	}
-//
-//	ctx.Writer.Header().Set("Content-Type", "application/json")
-//	ctx.Writer.Write([]byte("ok"))
-//}
+import (
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/coreapi"
+	"os"
+	"projectIntern/internal/entity"
+	"strconv"
+)
+
+type MidTransItf interface {
+	CreateTransactionService(service entity.Service, paymentMethod string, bookingId string, grossAmt int64, user entity.User) (*coreapi.ChargeResponse, error)
+	CreateTransactionDoctor(doctor entity.Doctor, paymentMethod string, bookingId string, grossAmt int64, user entity.User) (*coreapi.ChargeResponse, error)
+	Notification(bookingId string) (*coreapi.TransactionStatusResponse, error)
+}
+
+type MidTrans struct {
+	client coreapi.Client
+}
+
+func NewMidtrans(client coreapi.Client) MidTransItf {
+	return &MidTrans{client: client}
+}
+
+func (m MidTrans) CreateTransactionService(service entity.Service, paymentMethod string, bookingId string, grossAmt int64, user entity.User) (*coreapi.ChargeResponse, error) {
+	m.client.New(os.Getenv("SERVER_KEY"), midtrans.Sandbox)
+
+	chargeReq := &coreapi.ChargeReq{
+		PaymentType: coreapi.PaymentTypeBankTransfer,
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  bookingId,
+			GrossAmt: grossAmt,
+		},
+		Items: &[]midtrans.ItemDetails{
+			midtrans.ItemDetails{
+				ID:    strconv.Itoa(int(service.ID)),
+				Name:  service.Name,
+				Price: int64(service.Price),
+				Qty:   1,
+			},
+		},
+		CustomerDetails: &midtrans.CustomerDetails{
+			FName: user.FullName,
+			Email: user.Email,
+		},
+	}
+
+	if paymentMethod == "bca" {
+		chargeReq.BankTransfer = &coreapi.BankTransferDetails{
+			Bank: midtrans.BankBca,
+		}
+	} else if paymentMethod == "bni" {
+		chargeReq.BankTransfer = &coreapi.BankTransferDetails{
+			Bank: midtrans.BankBni,
+		}
+	}
+
+	resp, _ := m.client.ChargeTransaction(chargeReq)
+
+	return resp, nil
+}
+
+func (m MidTrans) CreateTransactionDoctor(doctor entity.Doctor, paymentMethod string, bookingId string, grossAmt int64, user entity.User) (*coreapi.ChargeResponse, error) {
+	m.client.New(os.Getenv("SERVER_KEY"), midtrans.Sandbox)
+
+	chargeReq := &coreapi.ChargeReq{
+		PaymentType: coreapi.PaymentTypeBankTransfer,
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  bookingId,
+			GrossAmt: grossAmt,
+		},
+		Items: &[]midtrans.ItemDetails{
+			midtrans.ItemDetails{
+				ID:    doctor.ID.String(),
+				Name:  doctor.Name,
+				Price: int64(doctor.Price),
+				Qty:   1,
+			},
+		},
+		CustomerDetails: &midtrans.CustomerDetails{
+			FName: user.FullName,
+			Email: user.Email,
+		},
+	}
+
+	if paymentMethod == "bca" {
+		chargeReq.BankTransfer = &coreapi.BankTransferDetails{
+			Bank: midtrans.BankBca,
+		}
+	} else if paymentMethod == "bni" {
+		chargeReq.BankTransfer = &coreapi.BankTransferDetails{
+			Bank: midtrans.BankBni,
+		}
+	}
+
+	resp, _ := m.client.ChargeTransaction(chargeReq)
+
+	return resp, nil
+}
+
+func (m MidTrans) Notification(bookingId string) (*coreapi.TransactionStatusResponse, error) {
+	m.client.New(os.Getenv("SERVER_KEY"), midtrans.Sandbox)
+
+	check, err := m.client.CheckTransaction(bookingId)
+	if err != nil {
+		return nil, err
+	}
+
+	return check, nil
+}
