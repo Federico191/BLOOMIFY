@@ -5,17 +5,25 @@ import (
 )
 
 type Repository struct {
-	User     UserRepoItf
-	Service  ServiceRepoItf
-	Review   ReviewRepoItf
-	Category CategoryRepoItf
+	User             UserRepoItf
+	Service          ServiceRepoItf
+	TreatmentReview  TreatmentReviewRepoItf
+	DoctorReview     DoctorReviewRepoItf
+	Category         CategoryRepoItf
+	BookingTreatment BookingTreatmentRepoItf
+	BookingDoctor    BookingDoctorRepoItf
+	Doctor           DoctorRepoItf
 }
 
 func Init(db *gorm.DB) *Repository {
 	return &Repository{
-		User:     NewUserRepo(db),
-		Service:  NewServiceRepo(db),
-		Review:   NewReviewRepo(db),
-		Category: NewCategoryRepo(db),
+		User:             NewUserRepo(db),
+		Service:          NewServiceRepo(db),
+		TreatmentReview:  NewTreatmentReviewRepo(db),
+		DoctorReview:     NewDoctorReviewRepo(db),
+		Category:         NewCategoryRepo(db),
+		BookingTreatment: NewBookingTreatmentRepo(db),
+		BookingDoctor:    NewBookingDoctorRepo(db),
+		Doctor:           NewDoctorRepo(db),
 	}
 }
