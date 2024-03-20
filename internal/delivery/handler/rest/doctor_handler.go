@@ -40,7 +40,7 @@ func (d DoctorHandler) GetAll(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, http.StatusOK, "successfully get beauty clinics", places)
+	response.Success(ctx, http.StatusOK, "successfully get doctors", places)
 }
 
 func (d DoctorHandler) GetById(ctx *gin.Context) {
@@ -52,11 +52,11 @@ func (d DoctorHandler) GetById(ctx *gin.Context) {
 		return
 	}
 
-	service, err := d.doctorUC.GetById(id)
+	doctor, err := d.doctorUC.GetById(id)
 	if err != nil {
-		response.Error(ctx, http.StatusInternalServerError, "failed to get service", err)
+		response.Error(ctx, http.StatusInternalServerError, "failed to get doctor", err)
 		return
 	}
 
-	response.Success(ctx, http.StatusOK, "successfully get service", service)
+	response.Success(ctx, http.StatusOK, "successfully get doctor", doctor)
 }
