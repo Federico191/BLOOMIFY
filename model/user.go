@@ -3,7 +3,6 @@ package model
 import (
 	"github.com/google/uuid"
 	"mime/multipart"
-	"time"
 )
 
 type UserRegister struct {
@@ -19,12 +18,10 @@ type UserLogin struct {
 }
 
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email" `
-	FullName  string    `json:"full_name" `
-	Avatar    string    `json:"avatar"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID       uuid.UUID `json:"id"`
+	Email    string    `json:"email" `
+	FullName string    `json:"full_name" `
+	Avatar   string    `json:"avatar"`
 }
 
 type UserUpdate struct {
