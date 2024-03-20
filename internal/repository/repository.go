@@ -10,6 +10,7 @@ type Repository struct {
 	TreatmentReview  TreatmentReviewRepoItf
 	DoctorReview     DoctorReviewRepoItf
 	Category         CategoryRepoItf
+	Place            PlaceRepoItf
 	BookingTreatment BookingTreatmentRepoItf
 	BookingDoctor    BookingDoctorRepoItf
 	Doctor           DoctorRepoItf
@@ -22,6 +23,7 @@ func Init(db *gorm.DB) *Repository {
 		TreatmentReview:  NewTreatmentReviewRepo(db),
 		DoctorReview:     NewDoctorReviewRepo(db),
 		Category:         NewCategoryRepo(db),
+		Place:            NewPlaceRepo(db),
 		BookingTreatment: NewBookingTreatmentRepo(db),
 		BookingDoctor:    NewBookingDoctorRepo(db),
 		Doctor:           NewDoctorRepo(db),

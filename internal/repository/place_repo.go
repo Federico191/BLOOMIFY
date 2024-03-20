@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"errors"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
+	"projectIntern/pkg/customerrors"
 )
 
 type PlaceRepoItf interface {
@@ -22,6 +24,9 @@ func (p PlaceRepo) GetById(id uint) (*entity.Place, error) {
 
 	err := p.db.Debug().Where("id = ?", id).First(&place).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
 
