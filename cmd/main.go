@@ -4,6 +4,8 @@ import (
 	supabasestorageuploader "github.com/adityarizkyramadhan/supabase-storage-uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	midtrans2 "github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/coreapi"
 	"log"
 	"os"
 	"projectIntern/internal/delivery/handler/rest"
@@ -14,6 +16,7 @@ import (
 	"projectIntern/pkg/database/mysql"
 	"projectIntern/pkg/email"
 	"projectIntern/pkg/jwt"
+	"projectIntern/pkg/midtrans"
 	"projectIntern/pkg/supabase"
 )
 
@@ -41,7 +44,11 @@ func main() {
 
 	emailVerify := email.NewEmail()
 
-	uc := usecase.Init(repo, jwtAuth, emailVerify, spbs)
+	midtransCoreApi := coreapi.Client{ServerKey: os.Getenv("SERVER_KEY"), Env: midtrans2.Sandbox}
+
+	mtrans := midtrans.NewMidtrans(midtransCoreApi)
+
+	uc := usecase.Init(repo, jwtAuth, emailVerify, spbs, mtrans)
 
 	handler := rest.Init(uc)
 
