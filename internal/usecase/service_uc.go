@@ -17,7 +17,7 @@ type ServiceItf interface {
 type Service struct {
 	serviceRepo  repository.ServiceRepoItf
 	categoryRepo repository.CategoryRepoItf
-	reviewRepo   repository.ReviewRepoItf
+	reviewRepo   repository.TreatmentReviewRepoItf
 	userRepo     repository.UserRepoItf
 }
 
@@ -64,11 +64,11 @@ func (s Service) GetById(id uint) (*model.ServiceDetailResponse, error) {
 		return nil, err
 	}
 
-	var reviews []*entity.Review
+	var reviews []*entity.TreatmentReview
 	for _, review := range service.Reviews {
 		if review.ServiceID == id {
 
-			data := &entity.Review{
+			data := &entity.TreatmentReview{
 				ID:        review.ID,
 				UserID:    review.UserID,
 				User:      review.User,
@@ -83,13 +83,15 @@ func (s Service) GetById(id uint) (*model.ServiceDetailResponse, error) {
 	}
 
 	response := &model.ServiceDetailResponse{
-		Name:        service.Name,
-		PhotoLink:   service.PhotoLink,
-		Rating:      service.AvgRating,
-		Address:     service.Place.Address,
-		Description: service.Description,
-		Price:       service.Price,
-		Review:      reviews,
+		Name:         service.Name,
+		PhotoLink:    service.PhotoLink,
+		Rating:       service.AvgRating,
+		Address:      service.Place.Address,
+		Description:  service.Description,
+		Price:        service.Price,
+		ReviewerName: service.Reviews[0].User.FullName,
+		Review:       service.Reviews[0].Review,
+		ReviewRating: service.Reviews[0].Rating,
 	}
 
 	return response, nil

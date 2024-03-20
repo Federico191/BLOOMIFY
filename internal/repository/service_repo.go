@@ -2,14 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
 	"projectIntern/model"
+	"projectIntern/pkg/customerrors"
 	"time"
 )
 
 type ServiceRepoItf interface {
-	Create(review entity.Review) error
 	GetById(id uint) (*entity.Service, error)
 	GetAllBeautyClinic(filter model.FilterParam, limit, offset int) ([]*entity.Service, error)
 	GetAllSpaMassage(filter model.FilterParam, limit, offset int) ([]*entity.Service, error)
@@ -23,15 +24,6 @@ type ServiceRepo struct {
 
 func NewServiceRepo(db *gorm.DB) ServiceRepoItf {
 	return &ServiceRepo{db: db}
-}
-
-func (s ServiceRepo) Create(review entity.Review) error {
-	err := s.db.Debug().Create(&review).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (s ServiceRepo) GetAll() ([]*entity.Service, error) {
@@ -58,18 +50,18 @@ func (s ServiceRepo) GetAllBeautyClinic(filter model.FilterParam, limit, offset 
 		Where("places.category_id = ? AND places.city LIKE ?", 1, "%"+filter.City+"%").
 		Preload("Problem").
 		Preload("Reviews").
-		Joins("JOIN reviews ON reviews.service_id = services.id").
+		Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id").
 		Group("services.id").
-		Select("services.*", "COALESCE(AVG(reviews.rating), 0) as avg_rating").
+		Select("services.*", "COALESCE(AVG(treatment_reviews.rating), 0) as avg_rating").
 		Limit(limit).Offset(offset)
 
-	if filter.Price == "lower" {
+	if filter.Price == "lowest" {
 		query = query.Order("price")
 	} else if filter.Price == "highest" {
 		query = query.Order("price desc")
 	}
 
-	if filter.Rating == "lower" {
+	if filter.Rating == "lowest" {
 		query = query.Order("avg_rating")
 	} else if filter.Rating == "highest" {
 		query = query.Order("avg_rating desc")
@@ -81,12 +73,16 @@ func (s ServiceRepo) GetAllBeautyClinic(filter model.FilterParam, limit, offset 
 
 	err := query.Find(&services).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
+
 	for _, data := range services {
 		serviceID := data.ID
 		var avg float64
-		s.db.Model(&entity.Review{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
+		s.db.Model(&entity.TreatmentReview{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
 			Find(&avg)
 		data.AvgRating = avg
 	}
@@ -104,18 +100,18 @@ func (s ServiceRepo) GetAllSpaMassage(filter model.FilterParam, limit, offset in
 		Where("places.category_id = ? AND places.city LIKE ?", 2, "%"+filter.City+"%").
 		Preload("Problem").
 		Preload("Reviews").
-		Joins("JOIN reviews ON reviews.service_id = services.id").
+		Joins("JOIN treatment_reviews ON reviews.service_id = services.id").
 		Group("services.id").
-		Select("services.*", "COALESCE(AVG(reviews.rating), 0) as avg_rating").
+		Select("services.*", "COALESCE(AVG(treatment_reviews.rating), 0) as avg_rating").
 		Limit(limit).Offset(offset)
 
-	if filter.Price == "lower" {
+	if filter.Price == "lowest" {
 		query = query.Order("price")
 	} else if filter.Price == "highest" {
 		query = query.Order("price desc")
 	}
 
-	if filter.Rating == "lower" {
+	if filter.Rating == "lowest" {
 		query = query.Order("avg_rating")
 	} else if filter.Rating == "highest" {
 		query = query.Order("avg_rating desc")
@@ -125,16 +121,20 @@ func (s ServiceRepo) GetAllSpaMassage(filter model.FilterParam, limit, offset in
 		query = query.Order("avg_rating desc")
 	}
 
-	s.db.Joins("JOIN reviews ON reviews.service_id = services.id")
+	s.db.Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id")
 
 	err := query.Find(&services).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
+
 	for _, data := range services {
 		serviceID := data.ID
 		var avg float64
-		s.db.Model(&entity.Review{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
+		s.db.Model(&entity.TreatmentReview{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
 			Find(&avg)
 		data.AvgRating = avg
 	}
@@ -147,12 +147,19 @@ func (s ServiceRepo) GetById(id uint) (*entity.Service, error) {
 
 	query := s.db.Debug().Preload("Place").
 		Where("services.id = ?", id).
-		Preload("Reviews").
-		First(&service)
+		Preload("Reviews")
 
 	query.Preload("Reviews.User")
 
-	s.db.Debug().Model(entity.Review{}).Where("service_id = ?", id).Select("AVG(rating) as avg_rating").
+	err := query.Find(&service).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	s.db.Debug().Model(entity.TreatmentReview{}).Where("service_id = ?", id).Select("AVG(rating) as avg_rating").
 		Find(&avg)
 	service.AvgRating = avg
 
@@ -168,18 +175,18 @@ func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([
 		Preload("Place").
 		Joins("JOIN places ON places.id = services.place_id").
 		Where("places.category_id = ? AND places.city LIKE ?", 3, "%"+filter.City+"%").
-		Joins("JOIN reviews ON reviews.service_id = services.id").
+		Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id").
 		Group("services.id").
-		Select("services.*", "COALESCE(AVG(reviews.rating), 0) as avg_rating").
+		Select("services.*", "COALESCE(AVG(treatment_reviews.rating), 0) as avg_rating").
 		Limit(limit).Offset(offset)
 
-	if filter.Price == "lower" {
+	if filter.Price == "lowest" {
 		query = query.Order("price")
 	} else if filter.Price == "highest" {
 		query = query.Order("price desc")
 	}
 
-	if filter.Rating == "lower" {
+	if filter.Rating == "lowest" {
 		query = query.Order("avg_rating")
 	} else if filter.Rating == "highest" {
 		query = query.Order("avg_rating desc")
@@ -189,16 +196,20 @@ func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([
 		query = query.Order("avg_rating desc")
 	}
 
-	s.db.Joins("JOIN reviews ON reviews.service_id = services.id")
+	s.db.Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id")
 
 	err := query.Find(&services).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
+
 	for _, data := range services {
 		serviceID := data.ID
 		var avg float64
-		s.db.Model(&entity.Review{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
+		s.db.Model(&entity.TreatmentReview{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
 			Find(&avg)
 		data.AvgRating = avg
 	}
@@ -216,18 +227,18 @@ func (s ServiceRepo) GetAllFitnessCenter(filter model.FilterParam, limit, offset
 		Where("places.category_id = ? AND places.city LIKE ?", 4, "%"+filter.City+"%").
 		Preload("Problem").
 		Preload("Reviews").
-		Joins("JOIN reviews ON reviews.service_id = services.id").
+		Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id").
 		Group("services.id").
-		Select("services.*", "COALESCE(AVG(reviews.rating), 0) as avg_rating").
+		Select("services.*", "COALESCE(AVG(treatment_reviews.rating), 0) as avg_rating").
 		Limit(limit).Offset(offset)
 
-	if filter.Price == "lower" {
+	if filter.Price == "lowest" {
 		query = query.Order("price")
 	} else if filter.Price == "highest" {
 		query = query.Order("price desc")
 	}
 
-	if filter.Rating == "lower" {
+	if filter.Rating == "lowest" {
 		query = query.Order("avg_rating")
 	} else if filter.Rating == "highest" {
 		query = query.Order("avg_rating desc")
@@ -237,16 +248,20 @@ func (s ServiceRepo) GetAllFitnessCenter(filter model.FilterParam, limit, offset
 		query = query.Order("avg_rating desc")
 	}
 
-	s.db.Joins("JOIN reviews ON reviews.service_id = services.id")
+	s.db.Joins("JOIN treatment_reviews ON treatment_reviews.service_id = services.id")
 
 	err := query.Find(&services).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
+
 	for _, data := range services {
 		serviceID := data.ID
 		var avg float64
-		s.db.Model(&entity.Review{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
+		s.db.Model(&entity.TreatmentReview{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
 			Find(&avg)
 		data.AvgRating = avg
 	}
