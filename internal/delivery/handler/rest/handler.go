@@ -5,17 +5,21 @@ import (
 )
 
 type Handler struct {
-	User    *UserHandler
-	Service *ServiceHandler
-	Booking *BookingHandler
-	Doctor  *DoctorHandler
+	User            *UserHandler
+	Service         *ServiceHandler
+	Booking         *BookingHandler
+	Doctor          *DoctorHandler
+	Personalization *PersonalizationHandler
+	Product         *ProductHandler
 }
 
 func Init(useCase *usecase.UseCase) *Handler {
 	return &Handler{
-		User:    NewUserHandler(useCase.User),
-		Service: NewServiceHandler(useCase.Service),
-		Booking: NewBookingHandler(useCase.BookingTreatment, useCase.BookingDoctor),
-		Doctor:  NewDoctorHandler(useCase.Doctor),
+		User:            NewUserHandler(useCase.User),
+		Service:         NewServiceHandler(useCase.Service),
+		Booking:         NewBookingHandler(useCase.BookingTreatment, useCase.BookingDoctor),
+		Doctor:          NewDoctorHandler(useCase.Doctor),
+		Personalization: NewPersonalizationHandler(useCase.Personalization),
+		Product:         NewProductHandler(useCase.Product),
 	}
 }
