@@ -14,6 +14,7 @@ type Repository struct {
 	BookingTreatment BookingTreatmentRepoItf
 	BookingDoctor    BookingDoctorRepoItf
 	Doctor           DoctorRepoItf
+	Product          ProductRepoItf
 }
 
 func Init(db *gorm.DB) *Repository {
@@ -27,5 +28,6 @@ func Init(db *gorm.DB) *Repository {
 		BookingTreatment: NewBookingTreatmentRepo(db),
 		BookingDoctor:    NewBookingDoctorRepo(db),
 		Doctor:           NewDoctorRepo(db),
+		Product:          NewProductRepo(db),
 	}
 }
