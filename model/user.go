@@ -18,10 +18,11 @@ type UserLogin struct {
 }
 
 type UserResponse struct {
-	ID       uuid.UUID `json:"id"`
-	Email    string    `json:"email" `
-	FullName string    `json:"full_name" `
-	Avatar   string    `json:"avatar"`
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email" `
+	FullName  string    `json:"full_name" `
+	Avatar    string    `json:"avatar"`
+	ProblemId uint      `json:"problem_id"`
 }
 
 type UserUpdate struct {
@@ -30,6 +31,7 @@ type UserUpdate struct {
 	Password   string `json:"password"`
 	IsVerified bool   `json:"is_verified"`
 	PhotoLink  string `json:"photo_link"`
+	ProblemId  uint   `json:"problem_id"`
 }
 
 type UserUploadPhoto struct {

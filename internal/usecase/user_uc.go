@@ -67,10 +67,11 @@ func (u UserUC) GetById(id uuid.UUID) (interface{}, error) {
 	}
 
 	userResponse := &model.UserResponse{
-		ID:       user.ID,
-		Email:    user.Email,
-		FullName: user.FullName,
-		Avatar:   user.PhotoLink,
+		ID:        user.ID,
+		Email:     user.Email,
+		FullName:  user.FullName,
+		Avatar:    user.PhotoLink,
+		ProblemId: user.ProblemID,
 	}
 
 	return userResponse, nil
