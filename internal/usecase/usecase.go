@@ -15,6 +15,8 @@ type UseCase struct {
 	BookingTreatment BookingTreatmentUCItf
 	BookingDoctor    BookingDoctorUCItf
 	Doctor           DoctorUCItf
+	Personalization  PersonalizationItf
+	Product          ProductUCItf
 }
 
 func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf, email email.EmailItf, itf supabase.SupabaseStorageItf, transItf midtrans.MidTransItf) *UseCase {
@@ -25,5 +27,7 @@ func Init(repo *repository.Repository, tokenMaker jwt.JWTMakerItf, email email.E
 		BookingTreatment: NewBookingTreatmentUC(repo.BookingTreatment, repo.User, repo.Service, transItf),
 		BookingDoctor:    NewBookingDoctorUC(repo.BookingDoctor, repo.User, repo.Doctor, transItf),
 		Doctor:           NewDoctorUC(repo.Doctor),
+		Personalization:  NewPersonalization(repo.User),
+		Product:          NewProductUC(repo.Product),
 	}
 }
