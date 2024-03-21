@@ -7,13 +7,14 @@ import (
 )
 
 func Migration(db *gorm.DB) {
-	err := db.AutoMigrate(entity.User{},
+	err := db.AutoMigrate(
+		entity.Problem{},
+		entity.User{},
 		entity.Category{},
 		entity.Profession{},
 		entity.Doctor{},
 		entity.BookingDoctor{},
 		entity.BookingTreatment{},
-		entity.Problem{},
 		entity.Place{},
 		entity.Service{},
 		entity.TreatmentReview{},
