@@ -9,6 +9,7 @@ import (
 	"os"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/middleware"
+	"time"
 )
 
 type Route struct {
@@ -23,10 +24,13 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 
 func (r *Route) MountEndPoint() {
 	r.Router.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{"*"},
-		AllowHeaders:  []string{"*"},
-		ExposeHeaders: []string{"*"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+
+		MaxAge: 12 * time.Hour,
 	}))
 
 	routerGroup := r.Router.Group("/api/v1")
@@ -39,6 +43,8 @@ func (r *Route) MountEndPoint() {
 	user.POST("/login", r.Handler.User.Login)
 	user.GET("/verify-email/:code", r.Handler.User.VerifyEmail)
 	user.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
+	user.POST("/survey", r.Middleware.JwtAuthMiddleware, r.Handler.Personalization.Analyze)
+	user.GET("/survey/result", r.Middleware.JwtAuthMiddleware, r.Handler.Product.GetByProblem)
 
 	profile := routerGroup.Group("/profile")
 	profile.POST("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.UpdatePhoto)
@@ -46,7 +52,7 @@ func (r *Route) MountEndPoint() {
 	service := routerGroup.Group("/service")
 	service.POST("/treatment/booking/", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.CreateBookingTreatment)
 	service.POST("/doctor/booking/", r.Middleware.JwtAuthMiddleware, r.Handler.Booking.CreateBookingDoctor)
-	service.GET("/booking/get-status/:id", r.Handler.Booking.GetByStatus)
+	service.GET("/booking/get-status/:id", r.Handler.Booking.GetById)
 	service.POST("/payment/update", r.Handler.Booking.Update)
 
 	beautyClinic := service.Group("/beauty-clinic")
