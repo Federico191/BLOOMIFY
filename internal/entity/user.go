@@ -13,7 +13,8 @@ type User struct {
 	Password          string             `gorm:"size:100;not null"`
 	VerificationCode  string             `gorm:"size:30"`
 	IsVerified        bool               `gorm:"default:false"`
-	SkinProblem       string             `gorm:"size:40"`
+	ProblemID         uint               `gorm:"foreignKey:ID"`
+	Problem           Problem            `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	CreatedAt         time.Time          `gorm:"autoCreateTime:milli"`
 	UpdatedAt         time.Time          `gorm:"autoCreateTime:milli;autoUpdateTime:milli"`
 	TreatmentReviews  []TreatmentReview  `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
