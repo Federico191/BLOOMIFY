@@ -105,7 +105,7 @@ func (b BookingHandler) Update(ctx *gin.Context) {
 	response.Success(ctx, http.StatusOK, "success update order", nil)
 }
 
-func (b BookingHandler) GetByStatus(ctx *gin.Context) {
+func (b BookingHandler) GetById(ctx *gin.Context) {
 	transactionId := ctx.Param("id")
 
 	booking, err := b.treatment.GetByStatus(transactionId)
