@@ -23,8 +23,6 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 }
 
 func (r *Route) MountEndPoint() {
-	routerGroup := r.Router.Group("/api/v1")
-
 	r.Router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"*"},
@@ -34,6 +32,8 @@ func (r *Route) MountEndPoint() {
 
 		MaxAge: 12 * time.Hour,
 	}))
+
+	routerGroup := r.Router.Group("/api/v1")
 
 	routerGroup.GET("/health-check", healthCheck)
 
