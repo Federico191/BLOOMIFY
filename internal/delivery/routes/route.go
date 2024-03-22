@@ -9,7 +9,6 @@ import (
 	"os"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/middleware"
-	"time"
 )
 
 type Route struct {
@@ -24,13 +23,10 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 
 func (r *Route) MountEndPoint() {
 	r.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"*"},
-		ExposeHeaders:    []string{"*"},
-		AllowCredentials: true,
-
-		MaxAge: 12 * time.Hour,
+		AllowOrigins:  []string{"*"},
+		AllowMethods:  []string{"*"},
+		AllowHeaders:  []string{"*"},
+		ExposeHeaders: []string{"*"},
 	}))
 
 	routerGroup := r.Router.Group("/api/v1")
