@@ -24,7 +24,7 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 
 func (r *Route) MountEndPoint() {
 	r.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     []string{"https://intern-bloomify.vercel.app"},
 		AllowMethods:     []string{"*"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"*"},
