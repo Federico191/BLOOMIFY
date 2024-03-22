@@ -9,6 +9,7 @@ import (
 	"projectIntern/model"
 	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/response"
+	"strings"
 )
 
 type BookingHandler struct {
@@ -71,35 +72,30 @@ func (b BookingHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	doctor, err := b.doctor.GetById(orderId)
-	if err != nil && !errors.Is(err, customerrors.ErrRecordNotFound) {
-		response.Error(ctx, http.StatusInternalServerError, "failed to get booking", err)
-		return
-	}
-
-	treatment, err := b.treatment.GetById(orderId)
-	if err != nil && !errors.Is(err, customerrors.ErrRecordNotFound) {
-		response.Error(ctx, http.StatusInternalServerError, "failed to get booking", err)
-		return
-	}
-
-	if treatment == nil && doctor == nil {
-		response.Error(ctx, http.StatusNotFound, "failed to found order_id", errors.New("order_id not found"))
-		return
-	}
-
-	if treatment != nil {
+	if strings.Contains(orderId, "doc-") {
+		doctor, err := b.doctor.GetById(orderId)
+		if err != nil {
+			response.Error(ctx, http.StatusInternalServerError, "failed to get booking", err)
+			return
+		}
+		err = b.doctor.Update(orderId)
+		if err != nil {
+			response.Error(ctx, http.StatusInternalServerError, "failed to update order", nil)
+			return
+		}
+		response.Success(ctx, http.StatusOK, "success update order doctor", doctor)
+	} else if strings.Contains(orderId, "svc-") {
+		treatment, err := b.treatment.GetById(orderId)
+		if err != nil {
+			response.Error(ctx, http.StatusInternalServerError, "failed to get booking", err)
+			return
+		}
 		err = b.treatment.Update(orderId)
 		if err != nil {
 			response.Error(ctx, http.StatusInternalServerError, "failed to update order", err)
 			return
 		}
-	} else {
-		err = b.doctor.Update(orderId)
-		if err != nil {
-			response.Error(ctx, http.StatusInternalServerError, "failed to update order", err)
-			return
-		}
+		response.Success(ctx, http.StatusOK, "success update order treatment", treatment)
 	}
 
 	response.Success(ctx, http.StatusOK, "success update order", nil)
@@ -110,6 +106,10 @@ func (b BookingHandler) GetById(ctx *gin.Context) {
 
 	booking, err := b.treatment.GetByStatus(transactionId)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "doctors not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get booking", err)
 		return
 	}
