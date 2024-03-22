@@ -1,5 +1,5 @@
 package model
 
 type PersonalizationReq struct {
-	Answers []string `json:"answers"`
+	Answers []string `json:"answers" binding:"required"`
 }

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"projectIntern/internal/repository"
 	"projectIntern/model"
@@ -50,8 +49,12 @@ func (p Personalization) Analyze(id uuid.UUID, req model.PersonalizationReq) (ui
 	}
 
 	if len(foundProblem) == 0 {
-		return 0, errors.New("skin problem not found")
-
+		user.ProblemID = 1
+		err = p.user.Update(user, model.UserUpdate{ProblemId: user.ProblemID})
+		if err != nil {
+			return 0, err
+		}
+		return user.ProblemID, nil
 	}
 
 	user.ProblemID = foundProblem[0].ProblemId
