@@ -49,7 +49,7 @@ func (b BookingTreatmentUC) Create(id uuid.UUID, req model.BookingTreatmentReque
 		return nil, err
 	}
 
-	bookingId := uuid.NewString()
+	bookingId := "svc-" + uuid.NewString()
 
 	transaction, err := b.mdtrans.CreateTransactionService(*service, req.PaymentMethod, bookingId, int64(service.Price), *user)
 	if err != nil {

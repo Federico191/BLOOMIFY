@@ -6,17 +6,17 @@ import (
 )
 
 type BookingDoctorRequest struct {
-	DoctorId      uuid.UUID `json:"doctor_id"`
-	Day           string    `json:"day"`
-	Time          string    `json:"time"`
-	PaymentMethod string    `json:"payment_method"`
+	DoctorId      uuid.UUID `json:"doctor_id" binding:"required"`
+	Day           string    `json:"day" binding:"required"`
+	Time          string    `json:"time" binding:"required"`
+	PaymentMethod string    `json:"payment_method" binding:"required"`
 }
 
 type BookingTreatmentRequest struct {
-	ServiceId     uint   `json:"service_id"`
-	Day           string `json:"day"`
-	Time          string `json:"time"`
-	PaymentMethod string `json:"payment_method"`
+	ServiceId     uint   `json:"service_id" binding:"required"`
+	Day           string `json:"day" binding:"required"`
+	Time          string `json:"time" binding:"required"`
+	PaymentMethod string `json:"payment_method" binding:"required"`
 }
 
 type BookingTreatmentResponse struct {
