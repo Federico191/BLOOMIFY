@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
 	"projectIntern/internal/usecase"
 	"projectIntern/model"
+	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/response"
 	"strconv"
 )
@@ -36,6 +38,10 @@ func (d DoctorHandler) GetAll(ctx *gin.Context) {
 
 	places, err := d.doctorUC.GetAll(filter, page)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "doctors not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get doctors", err)
 		return
 	}
@@ -54,6 +60,10 @@ func (d DoctorHandler) GetById(ctx *gin.Context) {
 
 	doctor, err := d.doctorUC.GetById(id)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "doctor not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get doctor", err)
 		return
 	}
