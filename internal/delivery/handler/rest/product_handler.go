@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"projectIntern/internal/usecase"
 	"projectIntern/model"
+	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/response"
 )
 
@@ -21,6 +23,9 @@ func (p ProductHandler) GetByProblem(ctx *gin.Context) {
 
 	products, err := p.product.GetByProblem(user.ProblemId)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "failed to get products", err)
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get products", err)
 		return
 	}
