@@ -11,6 +11,7 @@ type Handler struct {
 	Doctor          *DoctorHandler
 	Personalization *PersonalizationHandler
 	Product         *ProductHandler
+	Dashboard       *DashboardHandler
 }
 
 func Init(useCase *usecase.UseCase) *Handler {
@@ -21,5 +22,6 @@ func Init(useCase *usecase.UseCase) *Handler {
 		Doctor:          NewDoctorHandler(useCase.Doctor),
 		Personalization: NewPersonalizationHandler(useCase.Personalization),
 		Product:         NewProductHandler(useCase.Product),
+		Dashboard:       NewDashboardHandler(useCase.Product, useCase.Service),
 	}
 }
