@@ -6,7 +6,7 @@ import (
 )
 
 type BookingTreatment struct {
-	ID            string    `gorm:"primaryKey;size:36"`
+	ID            string    `gorm:"primaryKey;size:100"`
 	UserId        uuid.UUID `gorm:"primaryKey"`
 	User          User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	ServiceId     uint      `gorm:"primaryKey"`
@@ -20,7 +20,7 @@ type BookingTreatment struct {
 }
 
 type BookingDoctor struct {
-	ID            string    `gorm:"primaryKey;size:36"`
+	ID            string    `gorm:"primaryKey;size:100"`
 	UserId        uuid.UUID `gorm:"primaryKey"`
 	User          User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	DoctorId      uuid.UUID `gorm:"primaryKey"`
