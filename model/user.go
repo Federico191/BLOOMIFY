@@ -8,7 +8,7 @@ import (
 type UserRegister struct {
 	Email           string `json:"email" binding:"required,email"`
 	FullName        string `json:"full_name" binding:"required"`
-	Password        string `json:"password" binding:"required"`
+	Password        string `json:"password" binding:"required;gt=8"`
 	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=Password"`
 }
 
