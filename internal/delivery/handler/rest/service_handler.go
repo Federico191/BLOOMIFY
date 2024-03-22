@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"projectIntern/internal/usecase"
 	"projectIntern/model"
+	"projectIntern/pkg/customerrors"
 	"projectIntern/pkg/response"
 	"strconv"
 )
@@ -53,6 +55,10 @@ func (s ServiceHandler) GetAllBeautyClinic(ctx *gin.Context) {
 
 	places, err := s.useCase.GetAllBeautyClinic(filter, page)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get beauty clinics", err)
 		return
 	}
@@ -78,6 +84,10 @@ func (s ServiceHandler) GetAllSpaMassage(ctx *gin.Context) {
 
 	places, err := s.useCase.GetAllSpaMassage(filter, page)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get spa massages", err)
 		return
 	}
@@ -103,6 +113,10 @@ func (s ServiceHandler) GetAllSalon(ctx *gin.Context) {
 
 	places, err := s.useCase.GetAllSalon(filter, page)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get salons", err)
 		return
 	}
@@ -128,6 +142,10 @@ func (s ServiceHandler) GetAllFitnessCenter(ctx *gin.Context) {
 
 	places, err := s.useCase.GetAllFitnessCenter(filter, page)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			return
+		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get fitness centers", err)
 		return
 	}

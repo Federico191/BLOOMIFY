@@ -88,6 +88,11 @@ func (s ServiceRepo) GetAllBeautyClinic(filter model.FilterParam, limit, offset 
 			Find(&avg)
 		data.AvgRating = avg
 	}
+
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
 
@@ -140,6 +145,10 @@ func (s ServiceRepo) GetAllSpaMassage(filter model.FilterParam, limit, offset in
 			Find(&avg)
 		data.AvgRating = avg
 	}
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
 
@@ -215,6 +224,10 @@ func (s ServiceRepo) GetAllSalon(filter model.FilterParam, limit, offset int) ([
 			Find(&avg)
 		data.AvgRating = avg
 	}
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
 
@@ -267,6 +280,10 @@ func (s ServiceRepo) GetAllFitnessCenter(filter model.FilterParam, limit, offset
 			Find(&avg)
 		data.AvgRating = avg
 	}
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
 
@@ -285,6 +302,10 @@ func (s ServiceRepo) GetByTopRate() ([]*entity.Service, error) {
 		return nil, err
 	}
 
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
 
@@ -299,5 +320,9 @@ func (s ServiceRepo) GetByProblem(problemId uint) ([]*entity.Service, error) {
 		}
 		return nil, err
 	}
+	if len(services) == 0 {
+		return nil, customerrors.ErrRecordNotFound
+	}
+
 	return services, nil
 }
