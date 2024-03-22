@@ -2,14 +2,12 @@ package routes
 
 import (
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"projectIntern/internal/delivery/handler/rest"
 	"projectIntern/internal/delivery/middleware"
-	"time"
 )
 
 type Route struct {
@@ -23,15 +21,7 @@ func NewRoute(handler *rest.Handler, router *gin.Engine, Middleware middleware.M
 }
 
 func (r *Route) MountEndPoint() {
-	r.Router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://intern-bloomify.vercel.app"},
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"*"},
-		ExposeHeaders:    []string{"*"},
-		AllowCredentials: true,
-
-		MaxAge: 12 * time.Hour,
-	}))
+	r.Router.Use(r.Middleware.Cors())
 
 	routerGroup := r.Router.Group("/api/v1")
 
