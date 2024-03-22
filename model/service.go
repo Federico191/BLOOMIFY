@@ -22,3 +22,11 @@ type ServiceDetailResponse struct {
 	Review       string  `json:"review"`
 	ReviewRating int     `json:"review_rating"`
 }
+
+type ServiceResponseDashboard struct {
+	ServiceId   uint   `json:"service_id"`
+	Name        string `json:"name"`
+	PhotoLink   string `json:"photo_link"`
+	PlaceName   string `json:"place_name"`
+	Description string `json:"description"`
+}
