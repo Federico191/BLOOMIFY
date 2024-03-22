@@ -85,7 +85,7 @@ func (s ServiceHandler) GetAllSpaMassage(ctx *gin.Context) {
 	places, err := s.useCase.GetAllSpaMassage(filter, page)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrRecordNotFound) {
-			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			response.Error(ctx, http.StatusNotFound, "spa & massages not found", err)
 			return
 		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get spa massages", err)
@@ -114,7 +114,7 @@ func (s ServiceHandler) GetAllSalon(ctx *gin.Context) {
 	places, err := s.useCase.GetAllSalon(filter, page)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrRecordNotFound) {
-			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			response.Error(ctx, http.StatusNotFound, "salons not found", err)
 			return
 		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get salons", err)
@@ -143,7 +143,7 @@ func (s ServiceHandler) GetAllFitnessCenter(ctx *gin.Context) {
 	places, err := s.useCase.GetAllFitnessCenter(filter, page)
 	if err != nil {
 		if errors.Is(err, customerrors.ErrRecordNotFound) {
-			response.Error(ctx, http.StatusNotFound, "beauty clinics not found", err)
+			response.Error(ctx, http.StatusNotFound, "fitness centers not found", err)
 			return
 		}
 		response.Error(ctx, http.StatusInternalServerError, "failed to get fitness centers", err)
