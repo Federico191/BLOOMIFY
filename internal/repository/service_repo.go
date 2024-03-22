@@ -16,6 +16,8 @@ type ServiceRepoItf interface {
 	GetAllSpaMassage(filter model.FilterParam, limit, offset int) ([]*entity.Service, error)
 	GetAllSalon(filter model.FilterParam, limit, offset int) ([]*entity.Service, error)
 	GetAllFitnessCenter(filter model.FilterParam, limit, offset int) ([]*entity.Service, error)
+	GetByTopRate() ([]*entity.Service, error)
+	GetByProblem(problemId uint) ([]*entity.Service, error)
 }
 
 type ServiceRepo struct {
@@ -264,6 +266,38 @@ func (s ServiceRepo) GetAllFitnessCenter(filter model.FilterParam, limit, offset
 		s.db.Model(&entity.TreatmentReview{}).Where("service_id = ?", serviceID).Select("AVG(rating) as avg_rating").
 			Find(&avg)
 		data.AvgRating = avg
+	}
+	return services, nil
+}
+
+func (s ServiceRepo) GetByTopRate() ([]*entity.Service, error) {
+	var services []*entity.Service
+
+	err := s.db.Table("services").
+		Preload("Place").
+		Select("services.*, AVG(treatment_reviews.rating) AS avg_rating").
+		Joins("LEFT JOIN treatment_reviews ON services.id = treatment_reviews.service_id").
+		Group("services.id").
+		Order("avg_rating DESC").
+		Limit(4).
+		Find(&services).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return services, nil
+}
+
+func (s ServiceRepo) GetByProblem(problemId uint) ([]*entity.Service, error) {
+	var services []*entity.Service
+	err := s.db.Table("services").Preload("Place").Preload("Problem").Where("problem_id = ?", problemId).
+		Limit(4).
+		Find(&services).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
+		return nil, err
 	}
 	return services, nil
 }

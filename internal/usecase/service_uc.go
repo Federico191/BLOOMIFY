@@ -6,26 +6,28 @@ import (
 	"projectIntern/model"
 )
 
-type ServiceItf interface {
+type ServiceUCItf interface {
 	GetById(id uint) (*model.ServiceDetailResponse, error)
 	GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 	GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 	GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
 	GetAllFitnessCenter(filter model.FilterParam, page int) ([]*model.ServiceResponse, error)
+	GetByTopRate() ([]*model.ServiceResponseDashboard, error)
+	GetByProblem(problemId uint) ([]*model.ServiceResponseDashboard, error)
 }
 
-type Service struct {
+type ServiceUC struct {
 	serviceRepo  repository.ServiceRepoItf
 	categoryRepo repository.CategoryRepoItf
 	reviewRepo   repository.TreatmentReviewRepoItf
 	userRepo     repository.UserRepoItf
 }
 
-func NewService(repo repository.ServiceRepoItf, categoryRepo repository.CategoryRepoItf) ServiceItf {
-	return &Service{serviceRepo: repo, categoryRepo: categoryRepo}
+func NewServiceUC(repo repository.ServiceRepoItf, categoryRepo repository.CategoryRepoItf) ServiceUCItf {
+	return &ServiceUC{serviceRepo: repo, categoryRepo: categoryRepo}
 }
 
-func (s Service) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
+func (s ServiceUC) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
@@ -58,7 +60,7 @@ func (s Service) GetAllBeautyClinic(filter model.FilterParam, page int) ([]*mode
 	return services, nil
 }
 
-func (s Service) GetById(id uint) (*model.ServiceDetailResponse, error) {
+func (s ServiceUC) GetById(id uint) (*model.ServiceDetailResponse, error) {
 	service, err := s.serviceRepo.GetById(id)
 	if err != nil {
 		return nil, err
@@ -97,7 +99,7 @@ func (s Service) GetById(id uint) (*model.ServiceDetailResponse, error) {
 	return response, nil
 }
 
-func (s Service) GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
+func (s ServiceUC) GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
@@ -130,7 +132,7 @@ func (s Service) GetAllSpaMassage(filter model.FilterParam, page int) ([]*model.
 	return services, nil
 }
 
-func (s Service) GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
+func (s ServiceUC) GetAllSalon(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
@@ -163,7 +165,7 @@ func (s Service) GetAllSalon(filter model.FilterParam, page int) ([]*model.Servi
 	return services, nil
 }
 
-func (s Service) GetAllFitnessCenter(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
+func (s ServiceUC) GetAllFitnessCenter(filter model.FilterParam, page int) ([]*model.ServiceResponse, error) {
 	limit := 5
 	offset := (page - 1) * limit
 
@@ -194,4 +196,48 @@ func (s Service) GetAllFitnessCenter(filter model.FilterParam, page int) ([]*mod
 	}
 
 	return services, nil
+}
+
+func (s ServiceUC) GetByTopRate() ([]*model.ServiceResponseDashboard, error) {
+	services, err := s.serviceRepo.GetByTopRate()
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceResponses []*model.ServiceResponseDashboard
+	for _, service := range services {
+		response := &model.ServiceResponseDashboard{
+			ServiceId:   service.ID,
+			Name:        service.Name,
+			PhotoLink:   service.PhotoLink,
+			PlaceName:   service.Place.Name,
+			Description: service.Description,
+		}
+
+		serviceResponses = append(serviceResponses, response)
+	}
+
+	return serviceResponses, nil
+}
+
+func (s ServiceUC) GetByProblem(problemId uint) ([]*model.ServiceResponseDashboard, error) {
+	services, err := s.serviceRepo.GetByProblem(problemId)
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceResponses []*model.ServiceResponseDashboard
+	for _, service := range services {
+		response := &model.ServiceResponseDashboard{
+			ServiceId:   service.ID,
+			Name:        service.Name,
+			PhotoLink:   service.PhotoLink,
+			PlaceName:   service.Place.Name,
+			Description: service.Description,
+		}
+
+		serviceResponses = append(serviceResponses, response)
+	}
+
+	return serviceResponses, nil
 }

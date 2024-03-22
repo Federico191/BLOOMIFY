@@ -10,10 +10,10 @@ import (
 )
 
 type ServiceHandler struct {
-	useCase usecase.ServiceItf
+	useCase usecase.ServiceUCItf
 }
 
-func NewServiceHandler(useCase usecase.ServiceItf) *ServiceHandler {
+func NewServiceHandler(useCase usecase.ServiceUCItf) *ServiceHandler {
 	return &ServiceHandler{useCase: useCase}
 }
 
