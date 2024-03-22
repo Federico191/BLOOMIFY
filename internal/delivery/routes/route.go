@@ -25,10 +25,9 @@ func (r *Route) MountEndPoint() {
 	routerGroup := r.Router.Group("/api/v1")
 
 	r.Router.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{"*"},
-		AllowHeaders:  []string{"*"},
-		ExposeHeaders: []string{"*"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"*"},
+		AllowHeaders: []string{"*"},
 	}))
 
 	routerGroup.GET("/health-check", healthCheck)
