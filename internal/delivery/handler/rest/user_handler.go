@@ -64,7 +64,7 @@ func (a UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Token": token, "Message": "Success Login"})
+	c.JSON(http.StatusOK, gin.H{"token": token, "message": "Success Login"})
 }
 
 func (a UserHandler) VerifyEmail(ctx *gin.Context) {
@@ -78,6 +78,11 @@ func (a UserHandler) VerifyEmail(ctx *gin.Context) {
 
 	user, err := a.userUC.GetByVerificationCode(code)
 	if err != nil {
+		if errors.Is(err, customerrors.ErrRecordNotFound) {
+			response.Error(ctx, http.StatusNotFound, "failed to get user", err)
+			return
+		}
+		response.Error(ctx, http.StatusInternalServerError, "failed to get user", err)
 		return
 	}
 

@@ -36,7 +36,6 @@ func (d DoctorRepo) GetById(id uuid.UUID) (*entity.Doctor, error) {
 		return nil, err
 	}
 
-	// Menghitung rata-rata rating dari ulasan
 	var totalRating int
 	for _, review := range doctor.Reviews {
 		totalRating += review.Rating

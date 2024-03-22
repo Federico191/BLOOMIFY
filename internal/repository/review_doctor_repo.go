@@ -25,6 +25,9 @@ func (d DoctorReviewRepo) GetAll(limit, offset int) ([]*entity.DoctorReview, err
 
 	err := d.db.Debug().Limit(limit).Offset(offset).Find(&reviews).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
 

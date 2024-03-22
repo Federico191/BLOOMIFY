@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"projectIntern/internal/entity"
 	"projectIntern/model"
+	"projectIntern/pkg/customerrors"
 	"time"
 )
 
@@ -44,6 +46,9 @@ func (u UserRepository) GetByEmail(email string) (*entity.User, error) {
 
 	err := u.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
 
@@ -57,6 +62,9 @@ func (u UserRepository) GetByVerificationCode(code string) (*entity.User, error)
 
 	err := u.db.WithContext(ctx).Debug().Where("verification_code = ?", code).First(&user).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
 
@@ -70,6 +78,9 @@ func (u UserRepository) GetById(id uuid.UUID) (*entity.User, error) {
 
 	err := u.db.WithContext(ctx).Debug().Where("id = ?", id).First(&user).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customerrors.ErrRecordNotFound
+		}
 		return nil, err
 	}
 
