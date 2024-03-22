@@ -37,11 +37,14 @@ func (r *Route) MountEndPoint() {
 
 	routerGroup.GET("/health-check", healthCheck)
 
+	routerGroup.GET("/guest-dashboard", r.Handler.Dashboard.GuestDashboard)
+
 	user := routerGroup.Group("/user")
 
 	user.POST("/register", r.Handler.User.Register)
 	user.POST("/login", r.Handler.User.Login)
 	user.GET("/verify-email/:code", r.Handler.User.VerifyEmail)
+	user.GET("/user-dashboard", r.Middleware.JwtAuthMiddleware, r.Handler.Dashboard.UserDashboard)
 	user.GET("/", r.Middleware.JwtAuthMiddleware, r.Handler.User.GetUser)
 	user.POST("/survey", r.Middleware.JwtAuthMiddleware, r.Handler.Personalization.Analyze)
 	user.GET("/survey/result", r.Middleware.JwtAuthMiddleware, r.Handler.Product.GetByProblem)
